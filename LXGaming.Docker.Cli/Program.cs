@@ -1,5 +1,7 @@
-﻿using LXGaming.Docker.Cli.Commands.Compose;
+﻿using System;
+using LXGaming.Docker.Cli.Commands.Compose;
 using LXGaming.Docker.Cli.Commands.Update;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace LXGaming.Docker.Cli {
@@ -16,7 +18,13 @@ namespace LXGaming.Docker.Cli {
                 config.AddCommand<ComposeCommand>("compose");
                 config.AddCommand<UpdateCommand>("update");
             });
-            return app.Run(args);
+
+            try {
+                return app.Run(args);
+            } catch (Exception ex) {
+                AnsiConsole.WriteException(ex);
+                return 1;
+            }
         }
     }
 }
