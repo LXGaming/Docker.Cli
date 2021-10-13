@@ -18,7 +18,6 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
         }
 
         public override int Execute(CommandContext context, ComposeSettings settings) {
-            AnsiConsole.WriteLine();
             var path = Path.GetFullPath(settings.Path);
             if (!Directory.Exists(path)) {
                 AnsiConsole.MarkupLine($"[red]Directory not found - {settings.Path}[/]");
