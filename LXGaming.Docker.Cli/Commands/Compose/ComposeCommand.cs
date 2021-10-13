@@ -60,6 +60,7 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
             var hostService = DockerUtils.CreateHostService();
 
             AnsiConsole.Status()
+                .Spinner(Spinner.Known.Ascii)
                 .Start($"[yellow]Initializing[/]", ctx => {
                     ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
                     ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
@@ -83,6 +84,7 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
             }
 
             AnsiConsole.Status()
+                .Spinner(Spinner.Known.Ascii)
                 .Start($"[yellow]Initializing[/]", ctx => {
                     ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
                     ComposeUtils.Start(hostService, choice.Name, choice.Id);

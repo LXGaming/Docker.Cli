@@ -19,6 +19,7 @@ namespace LXGaming.Docker.Cli.Commands.Update {
             }
 
             AnsiConsole.Status()
+                .Spinner(Spinner.Known.Ascii)
                 .Start($"[yellow]Initializing[/]", ctx => {
                     for (var index = 0; index < images.Length; index++) {
                         var image = images[index];
