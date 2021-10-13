@@ -12,6 +12,7 @@ namespace LXGaming.Docker.Cli.Commands.Update {
             var images = hostService.GetImages()
                 .Where(image => !string.Equals(image.Tag, "<none>"))
                 .Select(image => $"{image.Name}:{image.Tag}")
+                .OrderBy(image => image)
                 .ToArray();
             if (images.Length == 0) {
                 AnsiConsole.MarkupLine("[red]No images found[/]");
