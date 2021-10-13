@@ -102,6 +102,7 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
                         Name = !string.IsNullOrWhiteSpace(name) ? name : Path.GetFileName(file)
                     };
                 })
+                .OrderBy(choice => choice.Name)
                 .ToArray();
         }
     }
