@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ductus.FluentDocker.Commands;
 using Ductus.FluentDocker.Common;
+using Ductus.FluentDocker.Model.Containers;
 using Ductus.FluentDocker.Services;
 
 namespace LXGaming.Docker.Cli.Utilities {
@@ -8,22 +10,7 @@ namespace LXGaming.Docker.Cli.Utilities {
     public static class ComposeUtils {
 
         public static void Create(IHostService hostService, string projectName = null, params string[] files) {
-            var result = hostService.Host.ComposeUpCommand(new Compose.ComposeUpCommandArgs {
-                AltProjectName = projectName,
-                ForceRecreate = false,
-                NoRecreate = false,
-                DontBuild = false,
-                BuildBeforeCreate = false,
-                Timeout = null,
-                RemoveOrphans = false,
-                UseColor = false,
-                NoStart = true,
-                Services = null,
-                Env = null,
-                Certificates = hostService.Certificates,
-                ComposeFiles = files,
-                ProjectDirectory = null
-            });
+            var result = Up(hostService, projectName, true, files);
             if (!result.Success) {
                 throw new FluentDockerException($"Could not create composite service from file(s) {string.Join(", ", files)}");
             }
@@ -44,7 +31,7 @@ namespace LXGaming.Docker.Cli.Utilities {
         }
 
         public static void Start(IHostService hostService, string projectName = null, params string[] files) {
-            var result = hostService.Host.ComposeStart(projectName, null, null, hostService.Certificates, files);
+            var result = Up(hostService, projectName, false, files);
             if (!result.Success) {
                 throw new FluentDockerException($"Could not start composite service from file(s) {string.Join(", ", files)}");
             }
@@ -55,6 +42,25 @@ namespace LXGaming.Docker.Cli.Utilities {
             if (!result.Success) {
                 throw new FluentDockerException($"Could not stop composite service from file(s) {string.Join(", ", files)}");
             }
+        }
+
+        private static CommandResponse<IList<string>> Up(IHostService hostService, string projectName = null, bool noStart = false, params string[] files) {
+            return hostService.Host.ComposeUpCommand(new Compose.ComposeUpCommandArgs {
+                AltProjectName = projectName,
+                ForceRecreate = false,
+                NoRecreate = false,
+                DontBuild = false,
+                BuildBeforeCreate = false,
+                Timeout = null,
+                RemoveOrphans = false,
+                UseColor = false,
+                NoStart = noStart,
+                Services = null,
+                Env = null,
+                Certificates = hostService.Certificates,
+                ComposeFiles = files,
+                ProjectDirectory = null
+            });
         }
     }
 }
