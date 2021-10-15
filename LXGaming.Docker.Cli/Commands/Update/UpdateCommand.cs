@@ -19,16 +19,14 @@ namespace LXGaming.Docker.Cli.Commands.Update {
                 return 1;
             }
 
-            AnsiConsole.Status()
-                .Spinner(Spinner.Known.Ascii)
-                .Start($"[yellow]Initializing[/]", ctx => {
-                    for (var index = 0; index < images.Length; index++) {
-                        var image = images[index];
-                        ctx.Status($"[yellow][[{index + 1}/{images.Length}]] Pulling[/] [blue]{image}[/]");
-                        DockerUtils.Pull(hostService, image);
-                        AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
-                    }
-                });
+            ConsoleUtils.Status(ctx => {
+                for (var index = 0; index < images.Length; index++) {
+                    var image = images[index];
+                    ctx.Status($"[yellow][[{index + 1}/{images.Length}]] Pulling[/] [blue]{image}[/]");
+                    DockerUtils.Pull(hostService, image);
+                    AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
+                }
+            });
 
             return 0;
         }

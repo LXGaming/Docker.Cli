@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using System;
+using Spectre.Console;
 
 namespace LXGaming.Docker.Cli.Utilities {
 
@@ -10,6 +11,12 @@ namespace LXGaming.Docker.Cli.Utilities {
                 ShowChoices = false,
                 ShowDefaultValue = false
             });
+        }
+
+        public static void Status(Action<StatusContext> action) {
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.Ascii)
+                .Start($"[yellow]Initializing[/]", action);
         }
     }
 }

@@ -58,37 +58,33 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
 
             var hostService = DockerUtils.CreateHostService();
 
-            AnsiConsole.Status()
-                .Spinner(Spinner.Known.Ascii)
-                .Start($"[yellow]Initializing[/]", ctx => {
-                    ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
-                    ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
-                    AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
+            ConsoleUtils.Status(ctx => {
+                ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
+                ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
+                AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
 
-                    ctx.Status($"[yellow]Removing[/] [blue]{choice.Name}[/]");
-                    ComposeUtils.Remove(hostService, choice.Name, true, false, choice.Id);
-                    AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
+                ctx.Status($"[yellow]Removing[/] [blue]{choice.Name}[/]");
+                ComposeUtils.Remove(hostService, choice.Name, true, false, choice.Id);
+                AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
 
-                    ctx.Status($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
-                    ComposeUtils.Pull(hostService, choice.Name, choice.Id);
-                    AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
+                ctx.Status($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
+                ComposeUtils.Pull(hostService, choice.Name, choice.Id);
+                AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
 
-                    ctx.Status($"[yellow]Creating[/] [blue]{choice.Name}[/]");
-                    ComposeUtils.Create(hostService, choice.Name, choice.Id);
-                    AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
-                });
+                ctx.Status($"[yellow]Creating[/] [blue]{choice.Name}[/]");
+                ComposeUtils.Create(hostService, choice.Name, choice.Id);
+                AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
+            });
 
             if (!ConsoleUtils.Confirm($"[yellow]Start[/] [blue]{choice.Name}[/][yellow]?[/]")) {
                 return 0;
             }
 
-            AnsiConsole.Status()
-                .Spinner(Spinner.Known.Ascii)
-                .Start($"[yellow]Initializing[/]", ctx => {
-                    ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
-                    ComposeUtils.Start(hostService, choice.Name, choice.Id);
-                    AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
-                });
+            ConsoleUtils.Status(ctx => {
+                ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
+                ComposeUtils.Start(hostService, choice.Name, choice.Id);
+                AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
+            });
 
             return 0;
         }
