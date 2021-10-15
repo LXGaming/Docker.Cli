@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ductus.FluentDocker.Commands;
 using Ductus.FluentDocker.Common;
 using Ductus.FluentDocker.Model.Containers;
@@ -14,6 +15,16 @@ namespace LXGaming.Docker.Cli.Utilities {
             if (!result.Success) {
                 throw new FluentDockerException($"Could not create composite service from file(s) {string.Join(", ", files)}");
             }
+        }
+
+        public static IList<Container> List(IHostService hostService, string projectName = null, params string[] files) {
+            var result = hostService.Host.ComposePs(projectName, null, null, hostService.Certificates, files);
+            if (!result.Success) {
+                throw new FluentDockerException($"Could not list composite service from file(s) {string.Join(", ", files)}");
+            }
+
+            var ids = result.Data.ToArray();
+            return ids.Length != 0 ? DockerUtils.InspectContainers(hostService, ids) : null;
         }
 
         public static void Pull(IHostService hostService, string projectName = null, params string[] files) {

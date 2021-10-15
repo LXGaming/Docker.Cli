@@ -58,6 +58,11 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
 
             var hostService = DockerUtils.CreateHostService();
 
+            var runningContainers = ComposeUtils.List(hostService, choice.Name, choice.Id)
+                .Where(container => container.State.Running)
+                .Select(container => container.Name)
+                .ToList();
+
             ConsoleUtils.Status(ctx => {
                 ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
                 ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
@@ -76,15 +81,28 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
                 AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
             });
 
-            if (!ConsoleUtils.Confirm($"[yellow]Start[/] [blue]{choice.Name}[/][yellow]?[/]")) {
-                return 0;
-            }
+            if (settings.RestoreState) {
+                var containers = ComposeUtils.List(hostService, choice.Name, choice.Id)
+                    .Where(container => runningContainers.Contains(container.Name))
+                    .ToList();
+                if (containers.Count == 0) {
+                    return 0;
+                }
 
-            ConsoleUtils.Status(ctx => {
-                ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
-                ComposeUtils.Start(hostService, choice.Name, choice.Id);
-                AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
-            });
+                ConsoleUtils.Status(ctx => {
+                    foreach (var container in containers) {
+                        ctx.Status($"[yellow]Starting[/] [blue]{container.Name}[/]");
+                        DockerUtils.Start(hostService, container.Id);
+                        AnsiConsole.MarkupLine($"Started [green]{container.Name}[/][grey]...[/]");
+                    }
+                });
+            } else if (ConsoleUtils.Confirm($"[yellow]Start[/] [blue]{choice.Name}[/][yellow]?[/]")) {
+                ConsoleUtils.Status(ctx => {
+                    ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
+                    ComposeUtils.Start(hostService, choice.Name, choice.Id);
+                    AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
+                });
+            }
 
             return 0;
         }

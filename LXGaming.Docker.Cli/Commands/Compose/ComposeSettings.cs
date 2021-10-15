@@ -6,5 +6,8 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
 
         [CommandArgument(0, "<path>")]
         public string Path { get; init; }
+
+        [CommandOption("--restore-state")]
+        public bool RestoreState { get; init; }
     }
 }
