@@ -9,6 +9,9 @@ namespace LXGaming.Docker.Cli {
     public static class Program {
 
         public static int Main(string[] args) {
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => Shutdown();
+            Console.CancelKeyPress += (_, _) => Shutdown();
+
             var app = new CommandApp();
             app.Configure(config => {
                 config.SetApplicationName("LXGaming.Docker.Cli");
@@ -25,6 +28,11 @@ namespace LXGaming.Docker.Cli {
                 AnsiConsole.WriteException(ex);
                 return 1;
             }
+        }
+
+        private static void Shutdown() {
+            AnsiConsole.Cursor.Show();
+            AnsiConsole.Reset();
         }
     }
 }
