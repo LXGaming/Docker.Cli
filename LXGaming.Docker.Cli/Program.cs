@@ -15,7 +15,7 @@ namespace LXGaming.Docker.Cli {
             var app = new CommandApp();
             app.Configure(config => {
                 config.SetApplicationName("LXGaming.Docker.Cli");
-                config.SetApplicationVersion("1.0.3");
+                config.SetApplicationVersion("1.0.4");
                 config.PropagateExceptions();
 
                 config.AddCommand<ComposeCommand>("compose");
