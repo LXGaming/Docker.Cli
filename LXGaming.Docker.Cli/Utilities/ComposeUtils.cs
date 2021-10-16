@@ -24,7 +24,7 @@ namespace LXGaming.Docker.Cli.Utilities {
             }
 
             var ids = result.Data.ToArray();
-            return ids.Length != 0 ? DockerUtils.InspectContainers(hostService, ids) : null;
+            return ids.Length != 0 ? DockerUtils.InspectContainers(hostService, ids) : Array.Empty<Container>();
         }
 
         public static void Pull(IHostService hostService, string projectName = null, params string[] files) {
