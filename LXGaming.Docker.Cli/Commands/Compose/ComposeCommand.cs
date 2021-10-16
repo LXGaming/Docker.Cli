@@ -58,10 +58,7 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
 
             var hostService = DockerUtils.CreateHostService();
 
-            var runningContainers = ComposeUtils.List(hostService, choice.Name, choice.Id)
-                .Where(container => container.State.Running)
-                .Select(container => container.Name)
-                .ToList();
+            var existingContainers = ComposeUtils.List(hostService, choice.Name, choice.Id);
 
             ConsoleUtils.Status(ctx => {
                 ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
@@ -81,9 +78,13 @@ namespace LXGaming.Docker.Cli.Commands.Compose {
                 AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
             });
 
-            if (settings.RestoreState) {
+            if (settings.RestoreState && existingContainers.Count != 0) {
                 var containers = ComposeUtils.List(hostService, choice.Name, choice.Id)
-                    .Where(container => runningContainers.Contains(container.Name))
+                    .Where(container => {
+                        return existingContainers
+                            .Where(existingContainer => existingContainer.State.Running)
+                            .Any(existingContainer => string.Equals(existingContainer.Name, container.Name));
+                    })
                     .ToList();
                 if (containers.Count == 0) {
                     return 0;
