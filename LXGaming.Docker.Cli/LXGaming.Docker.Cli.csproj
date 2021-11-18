@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ductus.FluentDocker" Version="2.10.39" />
+      <PackageReference Include="Ductus.FluentDocker" Version="2.10.40" />
       <PackageReference Include="Spectre.Console" Version="0.42.0" />
     </ItemGroup>
 
