@@ -1,7 +1,6 @@
 ﻿using Spectre.Console.Cli;
 
-namespace LXGaming.Docker.Cli.Commands.Update {
+namespace LXGaming.Docker.Cli.Commands.Update;
 
-    public class UpdateSettings : CommandSettings {
-    }
+public class UpdateSettings : CommandSettings {
 }
