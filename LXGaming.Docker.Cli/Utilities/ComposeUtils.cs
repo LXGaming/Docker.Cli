@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Ductus.FluentDocker.Commands;
+﻿using Ductus.FluentDocker.Commands;
 using Ductus.FluentDocker.Common;
 using Ductus.FluentDocker.Model.Containers;
 using Ductus.FluentDocker.Services;

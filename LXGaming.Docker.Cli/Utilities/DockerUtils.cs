@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Ductus.FluentDocker.Builders;
+﻿using Ductus.FluentDocker.Builders;
 using Ductus.FluentDocker.Commands;
 using Ductus.FluentDocker.Common;
 using Ductus.FluentDocker.Model.Containers;

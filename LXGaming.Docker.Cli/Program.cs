@@ -1,5 +1,4 @@
-﻿using System;
-using LXGaming.Docker.Cli.Commands.Compose;
+﻿using LXGaming.Docker.Cli.Commands.Compose;
 using LXGaming.Docker.Cli.Commands.Update;
 using Spectre.Console;
 using Spectre.Console.Cli;

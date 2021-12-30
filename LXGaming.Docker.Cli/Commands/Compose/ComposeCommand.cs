@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using LXGaming.Docker.Cli.Models;
+﻿using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;

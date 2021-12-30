@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using LXGaming.Docker.Cli.Utilities;
+﻿using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
