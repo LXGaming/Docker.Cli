@@ -1,4 +1,5 @@
-﻿using LXGaming.Docker.Cli.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -7,7 +8,7 @@ namespace LXGaming.Docker.Cli.Commands.Compose;
 
 public class ComposeCommand : Command<ComposeSettings> {
 
-    public override ValidationResult Validate(CommandContext context, ComposeSettings settings) {
+    public override ValidationResult Validate([NotNull] CommandContext context, [NotNull] ComposeSettings settings) {
         if (!Directory.Exists(settings.Path)) {
             return ValidationResult.Error($"Path not found - {settings.Path}");
         }
@@ -15,7 +16,7 @@ public class ComposeCommand : Command<ComposeSettings> {
         return base.Validate(context, settings);
     }
 
-    public override int Execute(CommandContext context, ComposeSettings settings) {
+    public override int Execute([NotNull] CommandContext context, [NotNull] ComposeSettings settings) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
             AnsiConsole.MarkupLine($"[red]Directory not found - {settings.Path}[/]");
