@@ -14,7 +14,7 @@ public static class Program {
         var app = new CommandApp();
         app.Configure(config => {
             config.SetApplicationName("LXGaming.Docker.Cli");
-            config.SetApplicationVersion("1.0.5");
+            config.SetApplicationVersion("1.0.6");
             config.PropagateExceptions();
 
             config.AddCommand<ComposeCommand>("compose");
