@@ -18,7 +18,7 @@ public static class DockerUtils {
     public static Container InspectContainer(IHostService hostService, string id) {
         var result = hostService.Host.InspectContainer(id, hostService.Certificates);
         if (!result.Success) {
-            throw new FluentDockerException($"Could not inspect container {id}");
+            throw new FluentDockerException($"Could not inspect container {id}: {result.Error}");
         }
 
         return result.Data;
@@ -27,7 +27,7 @@ public static class DockerUtils {
     public static IList<Container> InspectContainers(IHostService hostService, params string[] ids) {
         var result = hostService.Host.InspectContainers(hostService.Certificates, ids);
         if (!result.Success) {
-            throw new FluentDockerException($"Could not inspect container(s) {string.Join(", ", ids)}");
+            throw new FluentDockerException($"Could not inspect container(s) {string.Join(", ", ids)}: {result.Error}");
         }
 
         return result.Data;
@@ -36,14 +36,14 @@ public static class DockerUtils {
     public static void Pull(IHostService hostService, string image) {
         var result = hostService.Host.Pull(image, hostService.Certificates);
         if (!result.Success) {
-            throw new FluentDockerException($"Could not pull image {image}");
+            throw new FluentDockerException($"Could not pull image {image}: {result.Error}");
         }
     }
 
     public static void Start(IHostService hostService, string id) {
         var result = hostService.Host.Start(id, hostService.Certificates);
         if (!result.Success) {
-            throw new FluentDockerException($"Could not start container {id}");
+            throw new FluentDockerException($"Could not start container {id}: {result.Error}");
         }
     }
 }
