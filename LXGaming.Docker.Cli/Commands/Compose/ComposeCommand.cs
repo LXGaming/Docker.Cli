@@ -23,24 +23,29 @@ public class ComposeCommand : Command<ComposeSettings> {
             return 1;
         }
 
+        var choices = new Dictionary<Choice, List<Choice>>();
+        AppendFiles(choices, path);
+        foreach (var directory in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)) {
+            AppendFiles(choices, directory, Path.GetRelativePath(path, directory));
+        }
+
+        if (choices.Count == 0) {
+            AnsiConsole.MarkupLine($"[red]No compositions available[/]");
+            return 1;
+        }
+
         var selection = new SelectionPrompt<Choice> {
             PageSize = 10,
             Title = "[yellow]Select composition:[/]",
             Mode = SelectionMode.Leaf
         };
 
-        selection.AddChoices(GetFiles(path));
-
-        foreach (var directory in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)) {
-            var files = GetFiles(directory);
-            if (files.Count == 0) {
-                continue;
+        foreach (var (key, value) in choices) {
+            if (string.Equals(key.Id, path)) {
+                selection.AddChoices(value);
+            } else {
+                selection.AddChoiceGroup(key, value);
             }
-
-            selection.AddChoiceGroup(new Choice {
-                Id = directory,
-                Name = Path.GetRelativePath(path, directory)
-            }, files);
         }
 
         var choice = AnsiConsole.Prompt(selection);
@@ -104,6 +109,18 @@ public class ComposeCommand : Command<ComposeSettings> {
         }
 
         return 0;
+    }
+
+    private static void AppendFiles(IDictionary<Choice, List<Choice>> choices, string path, string? name = null) {
+        var files = GetFiles(path);
+        if (files.Count == 0) {
+            return;
+        }
+
+        choices.Add(new Choice {
+            Id = path,
+            Name = name
+        }, files);
     }
 
     private static List<Choice> GetFiles(string path) {
