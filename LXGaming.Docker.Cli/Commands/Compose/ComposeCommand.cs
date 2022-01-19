@@ -29,6 +29,10 @@ public class ComposeCommand : Command<ComposeSettings> {
             AppendFiles(choices, directory, Path.GetRelativePath(path, directory));
         }
 
+        if (!string.IsNullOrEmpty(settings.Name)) {
+            FilterChoices(choices, settings.Name);
+        }
+
         if (choices.Count == 0) {
             AnsiConsole.MarkupLine($"[red]No compositions available[/]");
             return 1;
@@ -121,6 +125,16 @@ public class ComposeCommand : Command<ComposeSettings> {
             Id = path,
             Name = name
         }, files);
+    }
+
+    private static void FilterChoices(IDictionary<Choice, List<Choice>> choices, string name) {
+        foreach (var key in choices.Keys.ToList()) {
+            var value = choices[key];
+            value.RemoveAll(choice => !string.Equals(choice.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (value.Count == 0) {
+                choices.Remove(key);
+            }
+        }
     }
 
     private static List<Choice> GetFiles(string path) {
