@@ -7,6 +7,6 @@ public class ComposeSettings : CommandSettings {
     [CommandArgument(0, "<path>")]
     public string Path { get; init; } = string.Empty;
 
-    [CommandOption("--restore-state")]
+    [CommandOption("-r|--restore-state")]
     public bool RestoreState { get; init; }
 }
