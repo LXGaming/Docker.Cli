@@ -31,8 +31,7 @@ public class ComposeCommand : Command<ComposeSettings> {
 
         selection.AddChoices(GetFiles(path));
 
-        var directories = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
-        foreach (var directory in directories) {
+        foreach (var directory in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)) {
             var files = GetFiles(directory);
             if (files.Length == 0) {
                 continue;
@@ -108,7 +107,7 @@ public class ComposeCommand : Command<ComposeSettings> {
     }
 
     private static Choice[] GetFiles(string path) {
-        return Directory.GetFiles(path, "*.yml")
+        return Directory.EnumerateFiles(path, "*.yml")
             .Select(file => {
                 var name = Path.GetFileNameWithoutExtension(file);
                 return new Choice {
