@@ -25,7 +25,7 @@ public static class ComposeUtils {
     }
 
     public static void Pull(IHostService hostService, string? projectName = null, params string[] files) {
-        var result = hostService.Host.ComposePull("", projectName, false, false, null, hostService.Certificates, files);
+        var result = hostService.Host.ComposePull(string.Empty, projectName, false, false, null, hostService.Certificates, files);
         if (!result.Success) {
             throw new FluentDockerException($"Could not pull composite service from file(s) {string.Join(", ", files)}: {result.Error}");
         }
