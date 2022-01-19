@@ -13,16 +13,16 @@ public class UpdateCommand : Command<UpdateSettings> {
             .Where(image => !string.Equals(image.Tag, "<none>"))
             .Select(image => $"{image.Name}:{image.Tag}")
             .OrderBy(image => image)
-            .ToArray();
-        if (images.Length == 0) {
+            .ToList();
+        if (images.Count == 0) {
             AnsiConsole.MarkupLine("[red]No images found[/]");
             return 1;
         }
 
         ConsoleUtils.Status(ctx => {
-            for (var index = 0; index < images.Length; index++) {
+            for (var index = 0; index < images.Count; index++) {
                 var image = images[index];
-                ctx.Status($"[yellow][[{index + 1}/{images.Length}]] Pulling[/] [blue]{image}[/]");
+                ctx.Status($"[yellow][[{index + 1}/{images.Count}]] Pulling[/] [blue]{image}[/]");
                 DockerUtils.Pull(hostService, image);
                 AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
             }

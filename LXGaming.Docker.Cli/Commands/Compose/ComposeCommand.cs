@@ -33,7 +33,7 @@ public class ComposeCommand : Command<ComposeSettings> {
 
         foreach (var directory in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)) {
             var files = GetFiles(directory);
-            if (files.Length == 0) {
+            if (files.Count == 0) {
                 continue;
             }
 
@@ -106,7 +106,7 @@ public class ComposeCommand : Command<ComposeSettings> {
         return 0;
     }
 
-    private static Choice[] GetFiles(string path) {
+    private static List<Choice> GetFiles(string path) {
         return Directory.EnumerateFiles(path, "*.yml")
             .Select(file => {
                 var name = Path.GetFileNameWithoutExtension(file);
@@ -116,6 +116,6 @@ public class ComposeCommand : Command<ComposeSettings> {
                 };
             })
             .OrderBy(choice => choice.Name)
-            .ToArray();
+            .ToList();
     }
 }
