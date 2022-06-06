@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ductus.FluentDocker" Version="2.10.44" />
-      <PackageReference Include="Spectre.Console" Version="0.43.0" />
+      <PackageReference Include="Ductus.FluentDocker" Version="2.10.48" />
+      <PackageReference Include="Spectre.Console" Version="0.44.0" />
     </ItemGroup>
 
 </Project>
