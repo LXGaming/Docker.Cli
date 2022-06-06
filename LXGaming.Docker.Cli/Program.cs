@@ -1,5 +1,6 @@
 ﻿using LXGaming.Docker.Cli.Commands.Compose;
 using LXGaming.Docker.Cli.Commands.Update;
+using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -13,8 +14,8 @@ public static class Program {
 
         var app = new CommandApp();
         app.Configure(config => {
-            config.SetApplicationName("LXGaming.Docker.Cli");
-            config.SetApplicationVersion("1.0.7");
+            config.SetApplicationName(Constants.Application.Name);
+            config.SetApplicationVersion(Constants.Application.Version);
             config.PropagateExceptions();
 
             config.AddCommand<ComposeCommand>("compose");
