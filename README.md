@@ -1,6 +1,6 @@
 # Docker.Cli
 
-[![License](https://lxgaming.github.io/badges/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![License](https://img.shields.io/github/license/LXGaming/Docker.Cli?label=License&cacheSeconds=86400)](https://github.com/LXGaming/Docker.Cli/blob/main/LICENSE)
 
 ## License
-Docker.Cli is licensed under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
+Docker.Cli is licensed under the [Apache 2.0](https://github.com/LXGaming/Docker.Cli/blob/main/LICENSE) license.
