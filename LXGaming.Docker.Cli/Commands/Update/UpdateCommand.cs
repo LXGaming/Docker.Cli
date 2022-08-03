@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Ductus.FluentDocker.Common;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -23,8 +24,13 @@ public class UpdateCommand : Command<UpdateSettings> {
             for (var index = 0; index < images.Count; index++) {
                 var image = images[index];
                 ctx.Status($"[yellow][[{index + 1}/{images.Count}]] Pulling[/] [blue]{image}[/]");
-                DockerUtils.Pull(hostService, image);
-                AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
+
+                try {
+                    DockerUtils.Pull(hostService, image);
+                    AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
+                } catch (FluentDockerException ex) {
+                    AnsiConsole.MarkupLine($"Failed [red]{image}[/]: {ex.Message}");
+                }
             }
         });
 
