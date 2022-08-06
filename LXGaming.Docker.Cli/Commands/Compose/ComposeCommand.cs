@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Ductus.FluentDocker.Common;
 using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
@@ -77,8 +78,12 @@ public class ComposeCommand : Command<ComposeSettings> {
             AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
 
             ctx.Status($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
-            ComposeUtils.Pull(hostService, choice.Name, choice.Id);
-            AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
+            try {
+                ComposeUtils.Pull(hostService, choice.Name, choice.Id);
+                AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
+            } catch (FluentDockerException ex) {
+                AnsiConsole.MarkupLine($"Failed [red]{choice.Name}[/]: {ex.Message}");
+            }
 
             ctx.Status($"[yellow]Creating[/] [blue]{choice.Name}[/]");
             ComposeUtils.Create(hostService, choice.Name, choice.Id);
