@@ -13,8 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ductus.FluentDocker" Version="2.10.55" />
-      <PackageReference Include="Spectre.Console" Version="0.44.0" />
+      <PackageReference Include="Ductus.FluentDocker" Version="2.10.57" />
+      <PackageReference Include="Spectre.Console.Cli" Version="0.45.0" />
     </ItemGroup>
 
 </Project>
