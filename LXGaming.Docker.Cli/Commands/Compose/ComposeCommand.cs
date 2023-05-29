@@ -90,20 +90,22 @@ public class ComposeCommand : Command<ComposeSettings> {
             AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
         });
 
+        var containers = ComposeUtils.List(hostService, choice.Name, choice.Id);
+
         if (settings.RestoreState && existingContainers.Count != 0) {
-            var containers = ComposeUtils.List(hostService, choice.Name, choice.Id)
+            var restoreContainers = containers
                 .Where(container => {
                     return existingContainers
                         .Where(existingContainer => existingContainer.State.Running)
                         .Any(existingContainer => string.Equals(existingContainer.Name, container.Name));
                 })
                 .ToList();
-            if (containers.Count == 0) {
+            if (restoreContainers.Count == 0) {
                 return 0;
             }
 
             ConsoleUtils.Status(ctx => {
-                foreach (var container in containers) {
+                foreach (var container in restoreContainers) {
                     ctx.Status($"[yellow]Starting[/] [blue]{container.Name}[/]");
                     DockerUtils.Start(hostService, container.Id);
                     AnsiConsole.MarkupLine($"Started [green]{container.Name}[/][grey]...[/]");
@@ -115,6 +117,18 @@ public class ComposeCommand : Command<ComposeSettings> {
                 ComposeUtils.Start(hostService, choice.Name, choice.Id);
                 AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
             });
+        }
+
+        if (settings.CheckNames) {
+            foreach (var container in containers) {
+                if (!container.Config.Labels.TryGetValue("com.docker.compose.service", out var service)) {
+                    continue;
+                }
+
+                if (!string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
+                    AnsiConsole.MarkupLine($"[red]Container and Service name mismatch (got {service}, expected {container.Name})[/]");
+                }
+            }
         }
 
         return 0;
