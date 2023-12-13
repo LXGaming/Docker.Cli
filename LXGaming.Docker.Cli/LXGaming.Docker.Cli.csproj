@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
-        <RuntimeIdentifiers>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x64;win-arm64</RuntimeIdentifiers>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <VersionPrefix>1.1.0</VersionPrefix>
-        <Authors>Alex Thomson</Authors>
-        <Product>Docker.Cli</Product>
-        <Copyright>Copyright © Alex Thomson</Copyright>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RuntimeIdentifiers>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x64;win-arm64</RuntimeIdentifiers>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <VersionPrefix>1.1.0</VersionPrefix>
+    <Authors>Alex Thomson</Authors>
+    <Product>Docker.Cli</Product>
+    <Copyright>Copyright © Alex Thomson</Copyright>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
-      <PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
+  </ItemGroup>
 
 </Project>
