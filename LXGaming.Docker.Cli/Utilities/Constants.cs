@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using LXGaming.Common.Utilities;
 
 namespace LXGaming.Docker.Cli.Utilities;
 
@@ -8,6 +9,6 @@ public static class Constants {
 
         public const string Name = "Docker.Cli";
 
-        public static readonly string Version = Toolbox.GetAssemblyVersion(Assembly.GetExecutingAssembly());
+        public static readonly string Version = AssemblyUtils.GetAssemblyVersion(Assembly.GetExecutingAssembly());
     }
 }

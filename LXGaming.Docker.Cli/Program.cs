@@ -15,7 +15,7 @@ app.Configure(config => {
 });
 
 try {
-    return app.Run(args);
+    return await app.RunAsync(args);
 } catch (Exception ex) {
     AnsiConsole.WriteException(ex);
     return 1;
