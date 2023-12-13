@@ -15,6 +15,6 @@ public static class ConsoleUtils {
     public static void Status(Action<StatusContext> action) {
         AnsiConsole.Status()
             .Spinner(Spinner.Known.Ascii)
-            .Start($"[yellow]Initializing[/]", action);
+            .Start("[yellow]Initialising[/]", action);
     }
 }

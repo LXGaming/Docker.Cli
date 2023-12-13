@@ -11,7 +11,7 @@ public class ComposeCommand : Command<ComposeSettings> {
 
     public override ValidationResult Validate([NotNull] CommandContext context, [NotNull] ComposeSettings settings) {
         if (!Directory.Exists(settings.Path)) {
-            return ValidationResult.Error($"Path not found - {settings.Path}");
+            return ValidationResult.Error($"Path does not exist: {settings.Path}");
         }
 
         return base.Validate(context, settings);
@@ -20,7 +20,7 @@ public class ComposeCommand : Command<ComposeSettings> {
     public override int Execute([NotNull] CommandContext context, [NotNull] ComposeSettings settings) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
-            AnsiConsole.MarkupLine($"[red]Directory not found - {settings.Path}[/]");
+            AnsiConsole.MarkupLine($"[red]Directory does not exist: {path}[/]");
             return 1;
         }
 
@@ -55,7 +55,7 @@ public class ComposeCommand : Command<ComposeSettings> {
 
         var choice = AnsiConsole.Prompt(selection);
         if (!File.Exists(choice.Id)) {
-            AnsiConsole.MarkupLine($"[red]File not found - {settings.Path}[/]");
+            AnsiConsole.MarkupLine($"[red]File does not exist: {choice.Id}[/]");
             return 1;
         }
 
