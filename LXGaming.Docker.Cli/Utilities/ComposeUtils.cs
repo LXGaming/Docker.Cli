@@ -15,7 +15,7 @@ public static class ComposeUtils {
     }
 
     public static IList<Container> List(IHostService hostService, string? projectName = null, params string[] files) {
-        var result = hostService.Host.ComposePs(projectName, new []{"--all"}, null, hostService.Certificates, files);
+        var result = hostService.Host.ComposePs(projectName, ["--all"], null, hostService.Certificates, files);
         if (!result.Success) {
             throw new FluentDockerException($"Could not list composite service from file(s) {string.Join(", ", files)}: {result.Error}");
         }
