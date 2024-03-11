@@ -5,13 +5,13 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 
 var app = new CommandApp();
-app.Configure(config => {
-    config.SetApplicationName(Constants.Application.Name);
-    config.SetApplicationVersion(Constants.Application.Version);
-    config.PropagateExceptions();
+app.Configure(configurator => {
+    configurator.SetApplicationName(Constants.Application.Name);
+    configurator.SetApplicationVersion(Constants.Application.Version);
+    configurator.PropagateExceptions();
 
-    config.AddCommand<ComposeCommand>("compose");
-    config.AddCommand<UpdateCommand>("update");
+    configurator.AddCommand<ComposeCommand>("compose");
+    configurator.AddCommand<UpdateCommand>("update");
 });
 
 try {
