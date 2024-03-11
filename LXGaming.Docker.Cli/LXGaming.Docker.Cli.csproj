@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
-    <PackageReference Include="LXGaming.Common" Version="1.8.1" />
+    <PackageReference Include="LXGaming.Common" Version="1.8.4" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
   </ItemGroup>
 

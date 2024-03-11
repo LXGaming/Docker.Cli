@@ -9,6 +9,6 @@ public static class Constants {
 
         public const string Name = "Docker.Cli";
 
-        public static readonly string Version = AssemblyUtils.GetAssemblyVersion(Assembly.GetExecutingAssembly());
+        public static readonly string Version = AssemblyUtils.GetVersion(Assembly.GetExecutingAssembly(), "Unknown");
     }
 }
