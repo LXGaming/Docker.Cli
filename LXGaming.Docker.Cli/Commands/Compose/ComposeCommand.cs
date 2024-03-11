@@ -125,7 +125,7 @@ public class ComposeCommand : Command<ComposeSettings> {
                 }
 
                 if (!string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
-                    AnsiConsole.MarkupLine($"[red]Container and Service name mismatch (got {service}, expected {container.Name})[/]");
+                    AnsiConsole.MarkupLine($"[red]Container and Service name mismatch (expected {container.Name}, got {service})[/]");
                 }
             }
         }
