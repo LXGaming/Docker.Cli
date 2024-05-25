@@ -13,6 +13,9 @@ public class ComposeSettings : CommandSettings {
     [CommandOption("-r|--restore-state")]
     public bool RestoreState { get; init; }
 
+    [CommandOption("--auto-select")]
+    public bool AutoSelect { get; init; }
+
     [CommandOption("--check-names")]
     public bool CheckNames { get; init; }
 

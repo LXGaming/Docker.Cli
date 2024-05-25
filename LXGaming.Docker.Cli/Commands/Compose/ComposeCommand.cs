@@ -38,22 +38,29 @@ public class ComposeCommand : Command<ComposeSettings> {
             return 1;
         }
 
-        var selection = new SelectionPrompt<Choice> {
-            Title = "[yellow]Select composition:[/]",
-            PageSize = 10,
-            Mode = SelectionMode.Leaf,
-            SearchEnabled = true
-        };
+        Choice choice;
+        var autoChoice = settings.AutoSelect ? GetAutoChoice(choices) : null;
+        if (autoChoice != null) {
+            choice = autoChoice;
+        } else {
+            var selection = new SelectionPrompt<Choice> {
+                Title = "[yellow]Select composition:[/]",
+                PageSize = 10,
+                Mode = SelectionMode.Leaf,
+                SearchEnabled = true
+            };
 
-        foreach (var (key, value) in choices) {
-            if (string.Equals(key.Id, path)) {
-                selection.AddChoices(value);
-            } else {
-                selection.AddChoiceGroup(key, value);
+            foreach (var (key, value) in choices) {
+                if (string.Equals(key.Id, path)) {
+                    selection.AddChoices(value);
+                } else {
+                    selection.AddChoiceGroup(key, value);
+                }
             }
+
+            choice = AnsiConsole.Prompt(selection);
         }
 
-        var choice = AnsiConsole.Prompt(selection);
         if (!File.Exists(choice.Id)) {
             AnsiConsole.MarkupLine($"[red]File does not exist: {choice.Id}[/]");
             return 1;
@@ -154,6 +161,17 @@ public class ComposeCommand : Command<ComposeSettings> {
                 choices.Remove(key);
             }
         }
+    }
+
+    private static Choice? GetAutoChoice(Dictionary<Choice, List<Choice>> choices) {
+        if (choices.Count == 1) {
+            var (_, value) = choices.Single();
+            if (value.Count == 1) {
+                return value.Single();
+            }
+        }
+
+        return null;
     }
 
     private static List<Choice> GetFiles(string path) {
