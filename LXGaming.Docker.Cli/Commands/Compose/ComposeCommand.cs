@@ -133,7 +133,7 @@ public class ComposeCommand : Command<ComposeSettings> {
         return 0;
     }
 
-    private static void AppendFiles(IDictionary<Choice, List<Choice>> choices, string path, string? name = null) {
+    private static void AppendFiles(Dictionary<Choice, List<Choice>> choices, string path, string? name = null) {
         var files = GetFiles(path);
         if (files.Count == 0) {
             return;
