@@ -1,6 +1,6 @@
 ﻿namespace LXGaming.Docker.Cli.Models;
 
-public class Choice {
+public record Choice {
 
     public required string Id { get; init; }
 
