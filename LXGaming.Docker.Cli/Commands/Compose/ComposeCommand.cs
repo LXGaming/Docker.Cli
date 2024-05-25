@@ -39,9 +39,10 @@ public class ComposeCommand : Command<ComposeSettings> {
         }
 
         var selection = new SelectionPrompt<Choice> {
-            PageSize = 10,
             Title = "[yellow]Select composition:[/]",
-            Mode = SelectionMode.Leaf
+            PageSize = 10,
+            Mode = SelectionMode.Leaf,
+            SearchEnabled = true
         };
 
         foreach (var (key, value) in choices) {
