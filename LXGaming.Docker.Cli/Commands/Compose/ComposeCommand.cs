@@ -59,7 +59,7 @@ public class ComposeCommand : Command<ComposeSettings> {
             return 1;
         }
 
-        if (!ConsoleUtils.Confirm($"[yellow]Confirm update for[/] [blue]{choice.Name}[/][yellow]?[/]")) {
+        if (!settings.SkipConfirmation && !ConsoleUtils.Confirm($"[yellow]Confirm update for[/] [blue]{choice.Name}[/][yellow]?[/]")) {
             AnsiConsole.MarkupLine("[red]Cancelled[/]");
             return 1;
         }

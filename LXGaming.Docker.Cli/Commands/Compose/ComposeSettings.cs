@@ -15,4 +15,7 @@ public class ComposeSettings : CommandSettings {
 
     [CommandOption("--check-names")]
     public bool CheckNames { get; init; }
+
+    [CommandOption("--skip-confirmation")]
+    public bool SkipConfirmation { get; init; }
 }
