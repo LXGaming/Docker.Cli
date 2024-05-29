@@ -147,10 +147,7 @@ public class ComposeCommand : Command<ComposeSettings> {
             return;
         }
 
-        choices.Add(new Choice {
-            Id = path,
-            Name = name
-        }, files);
+        choices.Add(new Choice(path, name), files);
     }
 
     private static void FilterChoices(Dictionary<Choice, List<Choice>> choices, string name) {
@@ -178,10 +175,7 @@ public class ComposeCommand : Command<ComposeSettings> {
         return Directory.EnumerateFiles(path, "*.yml")
             .Select(file => {
                 var name = Path.GetFileNameWithoutExtension(file);
-                return new Choice {
-                    Id = file,
-                    Name = !string.IsNullOrWhiteSpace(name) ? name : Path.GetFileName(file)
-                };
+                return new Choice(file, !string.IsNullOrWhiteSpace(name) ? name : Path.GetFileName(file));
             })
             .OrderBy(choice => choice.Name)
             .ToList();

@@ -1,10 +1,6 @@
 ﻿namespace LXGaming.Docker.Cli.Models;
 
-public record Choice {
-
-    public required string Id { get; init; }
-
-    public string? Name { get; init; }
+public record Choice(string Id, string? Name) {
 
     public override string ToString() {
         return Name ?? "null";
