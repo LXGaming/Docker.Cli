@@ -186,7 +186,7 @@ public class ComposeCommand : Command<ComposeSettings> {
     private static HashSet<Choice> GetChoices(string path) {
         var choices = new HashSet<Choice>();
 
-        foreach (var file in EnumerateFiles(path, SearchOption.AllDirectories, ".yml")) {
+        foreach (var file in EnumerateFiles(path, SearchOption.AllDirectories, ".yaml", ".yml")) {
             var fileName = Path.GetFileName(file);
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
 
