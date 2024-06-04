@@ -23,16 +23,9 @@ public class ComposeCommand : Command<ComposeSettings> {
             return 1;
         }
 
-        var choices = new Dictionary<Choice, List<Choice>>();
-        AppendFiles(choices, path);
-        foreach (var directory in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)) {
-            AppendFiles(choices, directory, Path.GetRelativePath(path, directory));
-        }
-
-        if (!string.IsNullOrEmpty(settings.Name)) {
-            FilterChoices(choices, settings.Name);
-        }
-
+        var choices = !string.IsNullOrEmpty(settings.Name)
+            ? GetFilteredChoices(settings.Path, settings.Name)
+            : GetChoices(settings.Path);
         if (choices.Count == 0) {
             AnsiConsole.MarkupLine($"[red]No compositions available[/]");
             return 1;
@@ -50,14 +43,7 @@ public class ComposeCommand : Command<ComposeSettings> {
                 SearchEnabled = true
             };
 
-            foreach (var (key, value) in choices) {
-                if (string.Equals(key.Id, path)) {
-                    selection.AddChoices(value);
-                } else {
-                    selection.AddChoiceGroup(key, value);
-                }
-            }
-
+            AddChoices(selection, path, choices);
             choice = AnsiConsole.Prompt(selection);
         }
 
@@ -141,43 +127,74 @@ public class ComposeCommand : Command<ComposeSettings> {
         return 0;
     }
 
-    private static void AppendFiles(Dictionary<Choice, List<Choice>> choices, string path, string? name = null) {
-        var files = GetFiles(path);
-        if (files.Count == 0) {
-            return;
-        }
+    private static void AddChoices(SelectionPrompt<Choice> prompt, string path, IEnumerable<Choice> choices) {
+        var items = new Dictionary<string, ISelectionItem<Choice>>();
+        foreach (var choice in choices) {
+            var directory = Path.GetDirectoryName(choice.Id);
+            if (string.IsNullOrEmpty(directory) || string.Equals(path, directory)) {
+                prompt.AddChoice(choice);
+                continue;
+            }
 
-        choices.Add(new Choice(path, name), files);
+            var relativePath = Path.GetRelativePath(path, directory);
+            if (string.IsNullOrEmpty(relativePath) || string.Equals(relativePath, ".")) {
+                prompt.AddChoice(choice);
+                continue;
+            }
+
+            if (items.TryGetValue(relativePath, out var existingItem)) {
+                existingItem.AddChild(choice);
+                continue;
+            }
+
+            var item = prompt.AddChoice(new Choice(directory, relativePath));
+            item.AddChild(choice);
+            items.Add(relativePath, item);
+        }
     }
 
-    private static void FilterChoices(Dictionary<Choice, List<Choice>> choices, string name) {
-        foreach (var key in choices.Keys.ToList()) {
-            var value = choices[key];
-            value.RemoveAll(choice => !string.Equals(choice.Name, name, StringComparison.OrdinalIgnoreCase));
-            if (value.Count == 0) {
-                choices.Remove(key);
+    private static IEnumerable<string> EnumerateFiles(string path, SearchOption searchOption, params string[] extensions) {
+        foreach (var file in Directory.EnumerateFiles(path, "*", searchOption)) {
+            var extension = Path.GetExtension(file);
+            if (extensions.Contains(extension, StringComparer.OrdinalIgnoreCase)) {
+                yield return file;
             }
         }
     }
 
-    private static Choice? GetAutoChoice(Dictionary<Choice, List<Choice>> choices) {
-        if (choices.Count == 1) {
-            var (_, value) = choices.Single();
-            if (value.Count == 1) {
-                return value.Single();
+    private static Choice? GetAutoChoice(ICollection<Choice> choices) {
+        return choices.Count == 1 ? choices.Single() : null;
+    }
+
+    private static HashSet<Choice> GetFilteredChoices(string path, string name) {
+        var choices = GetChoices(path);
+        if (choices.Count == 0) {
+            return choices;
+        }
+
+        var filteredChoices = new HashSet<Choice>();
+
+        foreach (var choice in choices) {
+            if (choice.Name?.Equals(name, StringComparison.OrdinalIgnoreCase) == true) {
+                filteredChoices.Add(choice);
             }
         }
 
-        return null;
+        return filteredChoices;
     }
 
-    private static List<Choice> GetFiles(string path) {
-        return Directory.EnumerateFiles(path, "*.yml")
-            .Select(file => {
-                var name = Path.GetFileNameWithoutExtension(file);
-                return new Choice(file, !string.IsNullOrWhiteSpace(name) ? name : Path.GetFileName(file));
-            })
-            .OrderBy(choice => choice.Name)
-            .ToList();
+    private static HashSet<Choice> GetChoices(string path) {
+        var choices = new HashSet<Choice>();
+
+        foreach (var file in EnumerateFiles(path, SearchOption.AllDirectories, ".yml")) {
+            var fileName = Path.GetFileName(file);
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+
+            var name = !string.IsNullOrWhiteSpace(fileNameWithoutExtension) ? fileNameWithoutExtension : fileName;
+
+            choices.Add(new Choice(file, name));
+        }
+
+        return choices;
     }
 }
