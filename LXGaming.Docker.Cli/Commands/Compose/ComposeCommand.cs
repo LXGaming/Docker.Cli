@@ -129,7 +129,7 @@ public class ComposeCommand : Command<ComposeSettings> {
 
     private static void AddChoices(SelectionPrompt<Choice> prompt, string path, IEnumerable<Choice> choices) {
         var items = new Dictionary<string, ISelectionItem<Choice>>();
-        foreach (var choice in choices) {
+        foreach (var choice in choices.OrderBy(choice => choice.Id)) {
             var directory = Path.GetDirectoryName(choice.Id);
             if (string.IsNullOrEmpty(directory) || string.Equals(path, directory)) {
                 prompt.AddChoice(choice);
