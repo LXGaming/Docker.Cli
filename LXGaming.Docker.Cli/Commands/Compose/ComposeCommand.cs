@@ -180,6 +180,16 @@ public class ComposeCommand : Command<ComposeSettings> {
             }
         }
 
+        if (filteredChoices.Count != 0) {
+            return filteredChoices;
+        }
+
+        foreach (var choice in choices) {
+            if (choice.Name?.Contains(name, StringComparison.OrdinalIgnoreCase) == true) {
+                filteredChoices.Add(choice);
+            }
+        }
+
         return filteredChoices;
     }
 
