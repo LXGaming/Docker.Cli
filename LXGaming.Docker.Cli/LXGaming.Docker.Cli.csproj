@@ -6,7 +6,7 @@
     <RuntimeIdentifiers>linux-x64;linux-arm64;osx-x64;osx-arm64;win-x64;win-arm64</RuntimeIdentifiers>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionPrefix>1.2.2</VersionPrefix>
     <Authors>Alex Thomson</Authors>
     <Product>Docker Cli</Product>
     <Copyright>© Alex Thomson. All rights reserved.</Copyright>
