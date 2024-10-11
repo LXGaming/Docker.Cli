@@ -1,5 +1,4 @@
 ﻿using Ductus.FluentDocker.Commands;
-using Ductus.FluentDocker.Common;
 using Ductus.FluentDocker.Model.Containers;
 using Ductus.FluentDocker.Services;
 
@@ -8,24 +7,20 @@ namespace LXGaming.Docker.Cli.Utilities;
 public static class ComposeUtils {
 
     public static void Create(IHostService hostService, string? projectName = null, params string[] files) {
-        var result = Up(hostService, projectName, true, files);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not create composite service from file(s) {string.Join(", ", files)}: {result.Error}");
-        }
+        var response = Up(hostService, projectName, true, files);
+        response.EnsureSuccess($"Could not create composite service from file(s) {string.Join(", ", files)}");
     }
 
     public static IList<Container> List(IHostService hostService, string? projectName = null, params string[] files) {
-        var result = hostService.Host.ComposePs(projectName, ["--all"], null, hostService.Certificates, files);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not list composite service from file(s) {string.Join(", ", files)}: {result.Error}");
-        }
+        var response = hostService.Host.ComposePs(projectName, ["--all"], null, hostService.Certificates, files);
+        response.EnsureSuccess($"Could not list composite service from file(s) {string.Join(", ", files)}");
 
-        var ids = result.Data.ToArray();
+        var ids = response.Data.ToArray();
         return ids.Length != 0 ? DockerUtils.InspectContainers(hostService, ids) : Array.Empty<Container>();
     }
 
     public static void Pull(IHostService hostService, string? projectName = null, params string[] files) {
-        var result = hostService.Host.ComposePull(new Compose.ComposePullCommandArgs {
+        var response = hostService.Host.ComposePull(new Compose.ComposePullCommandArgs {
             AltProjectName = projectName,
             DownloadAllTagged = false,
             SkipImageVerification = false,
@@ -33,30 +28,22 @@ public static class ComposeUtils {
             Certificates = hostService.Certificates,
             ComposeFiles = files
         });
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not pull composite service from file(s) {string.Join(", ", files)}: {result.Error}");
-        }
+        response.EnsureSuccess($"Could not pull composite service from file(s) {string.Join(", ", files)}");
     }
 
     public static void Remove(IHostService hostService, string? projectName = null, bool force = false, bool removeVolumes = false, params string[] files) {
-        var result = hostService.Host.ComposeRm(projectName, force, removeVolumes, null, null, hostService.Certificates, files);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not remove composite service from file(s) {string.Join(", ", files)}: {result.Error}");
-        }
+        var response = hostService.Host.ComposeRm(projectName, force, removeVolumes, null, null, hostService.Certificates, files);
+        response.EnsureSuccess($"Could not remove composite service from file(s) {string.Join(", ", files)}");
     }
 
     public static void Start(IHostService hostService, string? projectName = null, params string[] files) {
-        var result = Up(hostService, projectName, false, files);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not start composite service from file(s) {string.Join(", ", files)}: {result.Error}");
-        }
+        var response = Up(hostService, projectName, false, files);
+        response.EnsureSuccess($"Could not start composite service from file(s) {string.Join(", ", files)}");
     }
 
     public static void Stop(IHostService hostService, string? projectName = null, TimeSpan? timeout = null, params string[] files) {
-        var result = hostService.Host.ComposeStop(projectName, timeout, null, null, hostService.Certificates, files);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not stop composite service from file(s) {string.Join(", ", files)}: {result.Error}");
-        }
+        var response = hostService.Host.ComposeStop(projectName, timeout, null, null, hostService.Certificates, files);
+        response.EnsureSuccess($"Could not stop composite service from file(s) {string.Join(", ", files)}");
     }
 
     private static CommandResponse<IList<string>> Up(IHostService hostService, string? projectName = null, bool noStart = false, params string[] files) {

@@ -1,6 +1,5 @@
 ﻿using Ductus.FluentDocker.Builders;
 using Ductus.FluentDocker.Commands;
-using Ductus.FluentDocker.Common;
 using Ductus.FluentDocker.Model.Containers;
 using Ductus.FluentDocker.Services;
 
@@ -16,34 +15,24 @@ public static class DockerUtils {
     }
 
     public static Container InspectContainer(IHostService hostService, string id) {
-        var result = hostService.Host.InspectContainer(id, hostService.Certificates);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not inspect container {id}: {result.Error}");
-        }
-
-        return result.Data;
+        var response = hostService.Host.InspectContainer(id, hostService.Certificates);
+        response.EnsureSuccess($"Could not inspect container {id}");
+        return response.Data;
     }
 
     public static IList<Container> InspectContainers(IHostService hostService, params string[] ids) {
-        var result = hostService.Host.InspectContainers(hostService.Certificates, ids);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not inspect container(s) {string.Join(", ", ids)}: {result.Error}");
-        }
-
-        return result.Data;
+        var response = hostService.Host.InspectContainers(hostService.Certificates, ids);
+        response.EnsureSuccess($"Could not inspect container(s) {string.Join(", ", ids)}");
+        return response.Data;
     }
 
     public static void Pull(IHostService hostService, string image) {
-        var result = hostService.Host.Pull(image, hostService.Certificates);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not pull image {image}: {result.Error}");
-        }
+        var response = hostService.Host.Pull(image, hostService.Certificates);
+        response.EnsureSuccess($"Could not pull image {image}");
     }
 
     public static void Start(IHostService hostService, string id) {
-        var result = hostService.Host.Start(id, hostService.Certificates);
-        if (!result.Success) {
-            throw new FluentDockerException($"Could not start container {id}: {result.Error}");
-        }
+        var response = hostService.Host.Start(id, hostService.Certificates);
+        response.EnsureSuccess($"Could not start container {id}");
     }
 }
