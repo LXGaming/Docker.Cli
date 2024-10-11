@@ -114,12 +114,16 @@ public class ComposeCommand : Command<ComposeSettings> {
 
         if (settings.CheckNames) {
             foreach (var container in containers) {
-                if (!container.Config.Labels.TryGetValue("com.docker.compose.service", out var service)) {
-                    continue;
+                var service = ContainerUtils.GetService(container);
+                if (!string.IsNullOrEmpty(service)
+                    && !string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
+                    AnsiConsole.MarkupLine($"[red]Container and Service mismatch (expected {container.Name}, got {service})[/]");
                 }
 
-                if (!string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
-                    AnsiConsole.MarkupLine($"[red]Container and Service name mismatch (expected {container.Name}, got {service})[/]");
+                if (!ContainerUtils.IsDefaultHostname(container)
+                    && !ContainerUtils.IsHostNetwork(container)
+                    && !string.Equals(container.Name, container.Config.Hostname, StringComparison.OrdinalIgnoreCase)) {
+                    AnsiConsole.MarkupLine($"[red]Container and Hostname mismatch (expected {container.Name}, got {container.Config.Hostname})[/]");
                 }
             }
         }
