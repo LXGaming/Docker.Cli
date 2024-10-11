@@ -62,14 +62,6 @@ public class ComposeCommand : Command<ComposeSettings> {
         var existingContainers = ComposeUtils.List(hostService, choice.Name, choice.Id);
 
         ConsoleUtils.Status(ctx => {
-            ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
-            ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
-            AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
-
-            ctx.Status($"[yellow]Removing[/] [blue]{choice.Name}[/]");
-            ComposeUtils.Remove(hostService, choice.Name, true, false, choice.Id);
-            AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
-
             ctx.Status($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
             try {
                 ComposeUtils.Pull(hostService, choice.Name, choice.Id);
@@ -77,6 +69,14 @@ public class ComposeCommand : Command<ComposeSettings> {
             } catch (FluentDockerException ex) {
                 AnsiConsole.MarkupLine($"Failed [red]{choice.Name}[/]: {ex.Message}");
             }
+
+            ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
+            ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
+            AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
+
+            ctx.Status($"[yellow]Removing[/] [blue]{choice.Name}[/]");
+            ComposeUtils.Remove(hostService, choice.Name, true, false, choice.Id);
+            AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
 
             ctx.Status($"[yellow]Creating[/] [blue]{choice.Name}[/]");
             ComposeUtils.Create(hostService, choice.Name, choice.Id);
