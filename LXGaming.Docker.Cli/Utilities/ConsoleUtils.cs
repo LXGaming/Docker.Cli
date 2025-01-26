@@ -13,8 +13,15 @@ public static class ConsoleUtils {
     }
 
     public static void Status(Action<StatusContext> action) {
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.Ascii)
-            .Start("[yellow]Initialising[/]", action);
+        CreateStatus().Start("[yellow]Initialising[/]", action);
+    }
+
+    public static Task StatusAsync(Func<StatusContext, Task> action) {
+        return CreateStatus().StartAsync("[yellow]Initialising[/]", action);
+    }
+
+    private static Status CreateStatus() {
+        return AnsiConsole.Status()
+            .Spinner(Spinner.Known.Ascii);
     }
 }
