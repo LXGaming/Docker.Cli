@@ -1,12 +1,13 @@
-﻿using Ductus.FluentDocker.Common;
-using LXGaming.Docker.Cli.Models;
+﻿using LXGaming.Docker.Cli.Models;
+using LXGaming.Docker.Cli.Services.Docker;
+using LXGaming.Docker.Cli.Services.Docker.Utilities;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace LXGaming.Docker.Cli.Commands.Compose;
 
-public class ComposeCommand : Command<ComposeSettings> {
+public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
     public override ValidationResult Validate(CommandContext context, ComposeSettings settings) {
         if (!Directory.Exists(settings.Path)) {
@@ -16,7 +17,7 @@ public class ComposeCommand : Command<ComposeSettings> {
         return base.Validate(context, settings);
     }
 
-    public override int Execute(CommandContext context, ComposeSettings settings) {
+    public override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
             AnsiConsole.MarkupLine($"[red]Directory does not exist: {path}[/]");
@@ -57,33 +58,31 @@ public class ComposeCommand : Command<ComposeSettings> {
             return 1;
         }
 
-        var hostService = DockerUtils.CreateHostService();
+        var existingContainers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
 
-        var existingContainers = ComposeUtils.List(hostService, choice.Name, choice.Id);
-
-        ConsoleUtils.Status(ctx => {
+        await ConsoleUtils.StatusAsync(async ctx => {
             ctx.Status($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
             try {
-                ComposeUtils.Pull(hostService, choice.Name, choice.Id);
+                await DockerService.PullComposeAsync([choice.Id], choice.Name);
                 AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
-            } catch (FluentDockerException ex) {
+            } catch (Exception ex) {
                 AnsiConsole.MarkupLine($"Failed [red]{choice.Name}[/]: {ex.Message}");
             }
 
             ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
-            ComposeUtils.Stop(hostService, choice.Name, null, choice.Id);
+            await DockerService.StopComposeAsync([choice.Id], choice.Name);
             AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
 
             ctx.Status($"[yellow]Removing[/] [blue]{choice.Name}[/]");
-            ComposeUtils.Remove(hostService, choice.Name, true, false, choice.Id);
+            await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
             AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
 
             ctx.Status($"[yellow]Creating[/] [blue]{choice.Name}[/]");
-            ComposeUtils.Create(hostService, choice.Name, choice.Id);
+            await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
             AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
         });
 
-        var containers = ComposeUtils.List(hostService, choice.Name, choice.Id);
+        var containers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
 
         if (settings.RestoreState && existingContainers.Count != 0) {
             var restoreContainers = containers
@@ -97,31 +96,31 @@ public class ComposeCommand : Command<ComposeSettings> {
                 return 0;
             }
 
-            ConsoleUtils.Status(ctx => {
+            await ConsoleUtils.StatusAsync(async ctx => {
                 foreach (var container in restoreContainers) {
                     ctx.Status($"[yellow]Starting[/] [blue]{container.Name}[/]");
-                    DockerUtils.Start(hostService, container.Id);
+                    await DockerService.StartContainerAsync([container.ID]);
                     AnsiConsole.MarkupLine($"Started [green]{container.Name}[/][grey]...[/]");
                 }
             });
         } else if (ConsoleUtils.Confirm($"[yellow]Start[/] [blue]{choice.Name}[/][yellow]?[/]")) {
-            ConsoleUtils.Status(ctx => {
+            await ConsoleUtils.StatusAsync(async ctx => {
                 ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
-                ComposeUtils.Start(hostService, choice.Name, choice.Id);
+                await DockerService.StartComposeAsync([choice.Id], choice.Name);
                 AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
             });
         }
 
         if (settings.CheckNames) {
             foreach (var container in containers) {
-                var service = ContainerUtils.GetService(container);
+                var service = container.GetService();
                 if (!string.IsNullOrEmpty(service)
                     && !string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
                     AnsiConsole.MarkupLine($"[red]Container and Service mismatch (expected {container.Name}, got {service})[/]");
                 }
 
-                if (!ContainerUtils.IsDefaultHostname(container)
-                    && !ContainerUtils.IsHostNetwork(container)
+                if (!container.IsDefaultHostname()
+                    && !container.IsHostNetwork()
                     && !string.Equals(container.Name, container.Config.Hostname, StringComparison.OrdinalIgnoreCase)) {
                     AnsiConsole.MarkupLine($"[red]Container and Hostname mismatch (expected {container.Name}, got {container.Config.Hostname})[/]");
                 }
