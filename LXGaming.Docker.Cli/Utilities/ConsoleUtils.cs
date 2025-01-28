@@ -11,17 +11,4 @@ public static class ConsoleUtils {
             ShowDefaultValue = false
         });
     }
-
-    public static void Status(Action<StatusContext> action) {
-        CreateStatus().Start("[yellow]Initialising[/]", action);
-    }
-
-    public static Task StatusAsync(Func<StatusContext, Task> action) {
-        return CreateStatus().StartAsync("[yellow]Initialising[/]", action);
-    }
-
-    private static Status CreateStatus() {
-        return AnsiConsole.Status()
-            .Spinner(Spinner.Known.Ascii);
-    }
 }

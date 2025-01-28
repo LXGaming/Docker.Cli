@@ -1,5 +1,4 @@
 ﻿using LXGaming.Docker.Cli.Services.Docker;
-using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -14,19 +13,17 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
             return 1;
         }
 
-        await ConsoleUtils.StatusAsync(async ctx => {
-            for (var index = 0; index < images.Count; index++) {
-                var image = images[index];
-                ctx.Status($"[yellow][[{index + 1}/{images.Count}]] Pulling[/] [blue]{image}[/]");
+        for (var index = 0; index < images.Count; index++) {
+            var image = images[index];
+            AnsiConsole.MarkupLine($"[yellow][[{index + 1}/{images.Count}]] Pulling[/] [blue]{image}[/]");
 
-                try {
-                    await DockerService.PullImageAsync(image);
-                    AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
-                } catch (Exception ex) {
-                    AnsiConsole.MarkupLine($"Failed [red]{image}[/]: {ex.Message}");
-                }
+            try {
+                await DockerService.PullImageAsync(image);
+                AnsiConsole.MarkupLine($"Pulled [green]{image}[/][grey]...[/]");
+            } catch (Exception ex) {
+                AnsiConsole.MarkupLine($"Failed [red]{image}[/]: {ex.Message}");
             }
-        });
+        }
 
         return 0;
     }

@@ -60,27 +60,25 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
         var existingContainers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
 
-        await ConsoleUtils.StatusAsync(async ctx => {
-            ctx.Status($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
-            try {
-                await DockerService.PullComposeAsync([choice.Id], choice.Name);
-                AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
-            } catch (Exception ex) {
-                AnsiConsole.MarkupLine($"Failed [red]{choice.Name}[/]: {ex.Message}");
-            }
+        AnsiConsole.MarkupLine($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
+        try {
+            await DockerService.PullComposeAsync([choice.Id], choice.Name);
+            AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
+        } catch (Exception ex) {
+            AnsiConsole.MarkupLine($"Failed [red]{choice.Name}[/]: {ex.Message}");
+        }
 
-            ctx.Status($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
-            await DockerService.StopComposeAsync([choice.Id], choice.Name);
-            AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
+        AnsiConsole.MarkupLine($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
+        await DockerService.StopComposeAsync([choice.Id], choice.Name);
+        AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
 
-            ctx.Status($"[yellow]Removing[/] [blue]{choice.Name}[/]");
-            await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
-            AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
+        AnsiConsole.MarkupLine($"[yellow]Removing[/] [blue]{choice.Name}[/]");
+        await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
+        AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
 
-            ctx.Status($"[yellow]Creating[/] [blue]{choice.Name}[/]");
-            await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
-            AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
-        });
+        AnsiConsole.MarkupLine($"[yellow]Creating[/] [blue]{choice.Name}[/]");
+        await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
+        AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
 
         var containers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
 
@@ -96,19 +94,15 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                 return 0;
             }
 
-            await ConsoleUtils.StatusAsync(async ctx => {
-                foreach (var container in restoreContainers) {
-                    ctx.Status($"[yellow]Starting[/] [blue]{container.Name}[/]");
-                    await DockerService.StartContainerAsync([container.ID]);
-                    AnsiConsole.MarkupLine($"Started [green]{container.Name}[/][grey]...[/]");
-                }
-            });
+            foreach (var container in restoreContainers) {
+                AnsiConsole.MarkupLine($"[yellow]Starting[/] [blue]{container.Name}[/]");
+                await DockerService.StartContainerAsync([container.ID]);
+                AnsiConsole.MarkupLine($"Started [green]{container.Name}[/][grey]...[/]");
+            }
         } else if (ConsoleUtils.Confirm($"[yellow]Start[/] [blue]{choice.Name}[/][yellow]?[/]")) {
-            await ConsoleUtils.StatusAsync(async ctx => {
-                ctx.Status($"[yellow]Starting[/] [blue]{choice.Name}[/]");
-                await DockerService.StartComposeAsync([choice.Id], choice.Name);
-                AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
-            });
+            AnsiConsole.MarkupLine($"[yellow]Starting[/] [blue]{choice.Name}[/]");
+            await DockerService.StartComposeAsync([choice.Id], choice.Name);
+            AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
         }
 
         if (settings.CheckNames) {

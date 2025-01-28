@@ -183,10 +183,14 @@ public class DockerService {
         }
     }
 
-    private static ProcessStartInfo CreateStartInfo(bool redirect) {
+    private static ProcessStartInfo CreateStartInfo(bool capture) {
+        return CreateStartInfo(capture, capture);
+    }
+
+    private static ProcessStartInfo CreateStartInfo(bool createNoWindow, bool redirect) {
         return new ProcessStartInfo {
             FileName = "docker",
-            CreateNoWindow = true,
+            CreateNoWindow = createNoWindow,
             UseShellExecute = false,
             RedirectStandardError = redirect,
             RedirectStandardOutput = redirect
