@@ -20,7 +20,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
     public override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
-            AnsiConsole.MarkupLine($"[red]Directory does not exist: {path}[/]");
+            ConsoleUtils.Error("Directory does not exist {0}", path);
             return 1;
         }
 
@@ -28,7 +28,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             ? GetFilteredChoices(settings.Path, settings.Name)
             : GetChoices(settings.Path);
         if (choices.Count == 0) {
-            AnsiConsole.MarkupLine($"[red]No compositions available[/]");
+            ConsoleUtils.Error("No compositions available");
             return 1;
         }
 
@@ -38,7 +38,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             choice = autoChoice;
         } else {
             var selection = new SelectionPrompt<Choice> {
-                Title = "[yellow]Select composition:[/]",
+                Title = "[yellow]Select composition[/]",
                 PageSize = 10,
                 Mode = SelectionMode.Leaf,
                 SearchEnabled = true
@@ -49,36 +49,36 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         if (!File.Exists(choice.Id)) {
-            AnsiConsole.MarkupLine($"[red]File does not exist: {choice.Id}[/]");
+            ConsoleUtils.Error("File does not exist {0}", choice.Id);
             return 1;
         }
 
-        if (!settings.SkipConfirmation && !ConsoleUtils.Confirm($"[yellow]Confirm update for[/] [blue]{choice.Name}[/][yellow]?[/]")) {
-            AnsiConsole.MarkupLine("[red]Cancelled[/]");
+        if (!settings.SkipConfirmation && !ConsoleUtils.Confirmation("Confirm update for {0}", choice.Name)) {
+            ConsoleUtils.Error("Cancelled");
             return 1;
         }
 
         var existingContainers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
 
-        AnsiConsole.MarkupLine($"[yellow]Pulling[/] [blue]{choice.Name}[/]");
+        ConsoleUtils.Progress("Pulling {0}", choice.Name);
         try {
             await DockerService.PullComposeAsync([choice.Id], choice.Name);
-            AnsiConsole.MarkupLine($"Pulled [green]{choice.Name}[/][grey]...[/]");
+            ConsoleUtils.Success("Pulled {0}", choice.Name);
         } catch (Exception ex) {
-            AnsiConsole.MarkupLine($"Failed [red]{choice.Name}[/]: {ex.Message}");
+            ConsoleUtils.Error("Failed to pull {0}: {1}", choice.Name, ex.Message);
         }
 
-        AnsiConsole.MarkupLine($"[yellow]Stopping[/] [blue]{choice.Name}[/]");
+        ConsoleUtils.Progress("Stopping {0}", choice.Name);
         await DockerService.StopComposeAsync([choice.Id], choice.Name);
-        AnsiConsole.MarkupLine($"Stopped [green]{choice.Name}[/][grey]...[/]");
+        ConsoleUtils.Success("Stopped {0}", choice.Name);
 
-        AnsiConsole.MarkupLine($"[yellow]Removing[/] [blue]{choice.Name}[/]");
+        ConsoleUtils.Progress("Removing {0}", choice.Name);
         await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
-        AnsiConsole.MarkupLine($"Removed [green]{choice.Name}[/][grey]...[/]");
+        ConsoleUtils.Success("Removed {0}", choice.Name);
 
-        AnsiConsole.MarkupLine($"[yellow]Creating[/] [blue]{choice.Name}[/]");
+        ConsoleUtils.Progress("Creating {0}", choice.Name);
         await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
-        AnsiConsole.MarkupLine($"Created [green]{choice.Name}[/][grey]...[/]");
+        ConsoleUtils.Success("Created {0}", choice.Name);
 
         var containers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
 
@@ -95,14 +95,14 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             }
 
             foreach (var container in restoreContainers) {
-                AnsiConsole.MarkupLine($"[yellow]Starting[/] [blue]{container.Name}[/]");
+                ConsoleUtils.Progress("Starting {0}", container.Name);
                 await DockerService.StartContainerAsync([container.ID]);
-                AnsiConsole.MarkupLine($"Started [green]{container.Name}[/][grey]...[/]");
+                ConsoleUtils.Success("Started {0}", container.Name);
             }
-        } else if (ConsoleUtils.Confirm($"[yellow]Start[/] [blue]{choice.Name}[/][yellow]?[/]")) {
-            AnsiConsole.MarkupLine($"[yellow]Starting[/] [blue]{choice.Name}[/]");
+        } else if (ConsoleUtils.Confirmation("Start {0}", choice.Name)) {
+            ConsoleUtils.Progress("Starting {0}", choice.Name);
             await DockerService.StartComposeAsync([choice.Id], choice.Name);
-            AnsiConsole.MarkupLine($"Started [green]{choice.Name}[/][grey]...[/]");
+            ConsoleUtils.Success("Started {0}", choice.Name);
         }
 
         if (settings.CheckNames) {
@@ -110,13 +110,15 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                 var service = container.GetService();
                 if (!string.IsNullOrEmpty(service)
                     && !string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
-                    AnsiConsole.MarkupLine($"[red]Container and Service mismatch (expected {container.Name}, got {service})[/]");
+                    ConsoleUtils.Error("Container and Service mismatch [grey](expected {0}, got {1})[/]",
+                        container.Name, service);
                 }
 
                 if (!container.IsDefaultHostname()
                     && !container.IsHostNetwork()
                     && !string.Equals(container.Name, container.Config.Hostname, StringComparison.OrdinalIgnoreCase)) {
-                    AnsiConsole.MarkupLine($"[red]Container and Hostname mismatch (expected {container.Name}, got {container.Config.Hostname})[/]");
+                    ConsoleUtils.Error("Container and Hostname mismatch [grey](expected {0}, got {1})[/]",
+                        container.Name, container.Config.Hostname);
                 }
             }
         }

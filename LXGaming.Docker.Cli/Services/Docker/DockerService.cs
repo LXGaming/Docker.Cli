@@ -5,7 +5,6 @@ using Docker.DotNet.Models;
 using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Utilities;
 using Newtonsoft.Json;
-using Spectre.Console;
 
 namespace LXGaming.Docker.Cli.Services.Docker;
 
@@ -249,8 +248,7 @@ public class DockerService {
         try {
             action?.Invoke(sender, data);
         } catch (Exception ex) {
-            AnsiConsole.MarkupLine($"[red]Encountered an error while invoking callback[/]");
-            AnsiConsole.WriteException(ex);
+            ConsoleUtils.Error(ex, "Encountered an error while invoking callback");
         }
     }
 }
