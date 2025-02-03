@@ -49,62 +49,66 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             choice = AnsiConsole.Prompt(selection);
         }
 
-        if (!File.Exists(choice.Id)) {
-            ConsoleUtils.Error("File does not exist {0}", choice.Id);
+        var file = choice.Id;
+        if (!File.Exists(file)) {
+            ConsoleUtils.Error("File does not exist {0}", file);
             return 1;
         }
 
-        if (!settings.SkipConfirmation && !ConsoleUtils.Confirmation("Confirm update for {0}", choice.Name)) {
+        var files = new List<string> { file };
+        var projectName = choice.Name;
+
+        if (!settings.SkipConfirmation && !ConsoleUtils.Confirmation("Confirm update for {0}", projectName)) {
             ConsoleUtils.Error("Cancelled");
             return 1;
         }
 
         List<ContainerInspectResponse> existingContainers;
         try {
-            existingContainers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
+            existingContainers = await DockerService.ProcessStatusComposeAsync(files, projectName);
         } catch (Exception ex) {
             existingContainers = [];
             ConsoleUtils.Error(ex, "Encountered error while getting existing containers");
         }
 
-        ConsoleUtils.Progress("Pulling {0}", choice.Name);
-        var pullResult = await DockerService.PullComposeAsync([choice.Id], choice.Name);
+        ConsoleUtils.Progress("Pulling {0}", projectName);
+        var pullResult = await DockerService.PullComposeAsync(files, projectName);
         if (pullResult.ExitCode == 0) {
-            ConsoleUtils.Success("Pulled {0}", choice.Name);
+            ConsoleUtils.Success("Pulled {0}", projectName);
         } else {
-            ConsoleUtils.Error("Failed to pull {0}", choice.Name);
+            ConsoleUtils.Error("Failed to pull {0}", projectName);
         }
 
-        ConsoleUtils.Progress("Stopping {0}", choice.Name);
-        var stopResult = await DockerService.StopComposeAsync([choice.Id], choice.Name);
+        ConsoleUtils.Progress("Stopping {0}", projectName);
+        var stopResult = await DockerService.StopComposeAsync(files, projectName);
         if (stopResult.ExitCode == 0) {
-            ConsoleUtils.Success("Stopped {0}", choice.Name);
+            ConsoleUtils.Success("Stopped {0}", projectName);
         } else {
-            ConsoleUtils.Error("Failed to stop {0}", choice.Name);
+            ConsoleUtils.Error("Failed to stop {0}", projectName);
             return 1;
         }
 
-        ConsoleUtils.Progress("Removing {0}", choice.Name);
-        var removeResult = await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
+        ConsoleUtils.Progress("Removing {0}", projectName);
+        var removeResult = await DockerService.RemoveComposeAsync(files, projectName, stop: true);
         if (removeResult.ExitCode == 0) {
-            ConsoleUtils.Success("Removed {0}", choice.Name);
+            ConsoleUtils.Success("Removed {0}", projectName);
         } else {
-            ConsoleUtils.Error("Failed to remove {0}", choice.Name);
+            ConsoleUtils.Error("Failed to remove {0}", projectName);
             return 1;
         }
 
-        ConsoleUtils.Progress("Creating {0}", choice.Name);
-        var upResult = await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
+        ConsoleUtils.Progress("Creating {0}", projectName);
+        var upResult = await DockerService.UpComposeAsync(files, projectName, noStart: true);
         if (upResult.ExitCode == 0) {
-            ConsoleUtils.Success("Created {0}", choice.Name);
+            ConsoleUtils.Success("Created {0}", projectName);
         } else {
-            ConsoleUtils.Error("Failed to create {0}", choice.Name);
+            ConsoleUtils.Error("Failed to create {0}", projectName);
             return 1;
         }
 
         List<ContainerInspectResponse> containers;
         try {
-            containers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
+            containers = await DockerService.ProcessStatusComposeAsync(files, projectName);
         } catch (Exception ex) {
             containers = [];
             ConsoleUtils.Error(ex, "Encountered error while getting containers");
@@ -131,13 +135,13 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                     ConsoleUtils.Error("Failed to start {0}", container.Name);
                 }
             }
-        } else if (ConsoleUtils.Confirmation("Start {0}", choice.Name)) {
-            ConsoleUtils.Progress("Starting {0}", choice.Name);
-            var startResult = await DockerService.StartComposeAsync([choice.Id], choice.Name);
+        } else if (ConsoleUtils.Confirmation("Start {0}", projectName)) {
+            ConsoleUtils.Progress("Starting {0}", projectName);
+            var startResult = await DockerService.StartComposeAsync(files, projectName);
             if (startResult.ExitCode == 0) {
-                ConsoleUtils.Success("Started {0}", choice.Name);
+                ConsoleUtils.Success("Started {0}", projectName);
             } else {
-                ConsoleUtils.Error("Failed to start {0}", choice.Name);
+                ConsoleUtils.Error("Failed to start {0}", projectName);
             }
         }
 
