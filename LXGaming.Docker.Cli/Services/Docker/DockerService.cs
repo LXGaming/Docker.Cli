@@ -81,20 +81,6 @@ public class DockerService {
         return ExecuteAsync(startInfo);
     }
 
-    public static Task<ProcessResult> StopComposeAsync(IEnumerable<string> files, string? projectName = null,
-        TimeSpan? timeout = null) {
-        var startInfo = CreateStartInfo(false);
-        AddComposeArguments(startInfo.ArgumentList, files, projectName);
-        startInfo.ArgumentList.Add("stop");
-
-        if (timeout.HasValue) {
-            startInfo.ArgumentList.Add("--timeout");
-            startInfo.ArgumentList.Add(((long) timeout.Value.TotalSeconds).ToString());
-        }
-
-        return ExecuteAsync(startInfo);
-    }
-
     public static Task<ProcessResult> UpComposeAsync(IEnumerable<string> files, string? projectName = null,
         bool forceRecreate = false, bool noStart = false, bool removeOrphans = false) {
         var startInfo = CreateStartInfo(false);

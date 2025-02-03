@@ -88,15 +88,6 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             ConsoleUtils.Error("Failed to pull {0}", projectName);
         }
 
-        ConsoleUtils.Progress("Stopping {0}", projectName);
-        var stopResult = await DockerService.StopComposeAsync(files, projectName);
-        if (stopResult.ExitCode == 0) {
-            ConsoleUtils.Success("Stopped {0}", projectName);
-        } else {
-            ConsoleUtils.Error("Failed to stop {0}", projectName);
-            return 1;
-        }
-
         ConsoleUtils.Progress("Removing {0}", projectName);
         var removeResult = await DockerService.RemoveComposeAsync(files, projectName, stop: true);
         if (removeResult.ExitCode == 0) {
