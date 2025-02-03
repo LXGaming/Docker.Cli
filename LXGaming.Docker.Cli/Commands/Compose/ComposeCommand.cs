@@ -63,12 +63,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        ConsoleUtils.Progress("Validating {0}", projectName);
         var configResult = await DockerService.ConfigComposeAsync(files, projectName);
-        if (configResult.ExitCode == 0) {
-            ConsoleUtils.Success("Validated {0}", projectName);
-        } else {
-            ConsoleUtils.Error("Failed to validate {0}", projectName);
+        if (configResult.ExitCode != 0) {
             return 1;
         }
 
@@ -80,29 +76,18 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             ConsoleUtils.Error(ex, "Encountered error while getting existing containers");
         }
 
-        ConsoleUtils.Progress("Pulling {0}", projectName);
         var pullResult = await DockerService.PullComposeAsync(files, projectName);
-        if (pullResult.ExitCode == 0) {
-            ConsoleUtils.Success("Pulled {0}", projectName);
-        } else {
-            ConsoleUtils.Error("Failed to pull {0}", projectName);
+        if (pullResult.ExitCode != 0) {
+            // no-op
         }
 
-        ConsoleUtils.Progress("Removing {0}", projectName);
         var removeResult = await DockerService.RemoveComposeAsync(files, projectName, stop: true);
-        if (removeResult.ExitCode == 0) {
-            ConsoleUtils.Success("Removed {0}", projectName);
-        } else {
-            ConsoleUtils.Error("Failed to remove {0}", projectName);
+        if (removeResult.ExitCode != 0) {
             return 1;
         }
 
-        ConsoleUtils.Progress("Creating {0}", projectName);
         var upResult = await DockerService.UpComposeAsync(files, projectName, noStart: true);
-        if (upResult.ExitCode == 0) {
-            ConsoleUtils.Success("Created {0}", projectName);
-        } else {
-            ConsoleUtils.Error("Failed to create {0}", projectName);
+        if (upResult.ExitCode != 0) {
             return 1;
         }
 
@@ -138,12 +123,9 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                 }
             }
         } else if (ConsoleUtils.Confirmation("Start {0}", projectName)) {
-            ConsoleUtils.Progress("Starting {0}", projectName);
             var startResult = await DockerService.StartComposeAsync(files, projectName);
-            if (startResult.ExitCode == 0) {
-                ConsoleUtils.Success("Started {0}", projectName);
-            } else {
-                ConsoleUtils.Error("Failed to start {0}", projectName);
+            if (startResult.ExitCode != 0) {
+                // no-op
             }
         }
 
