@@ -136,12 +136,14 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             }
 
             foreach (var container in restoreContainers) {
-                ConsoleUtils.Progress("Starting {0}", container.Name);
+                var containerName = container.GetName();
+
+                ConsoleUtils.Progress("Starting {0}", containerName);
                 var startResult = await DockerService.StartContainerAsync([container.ID]);
                 if (startResult.ExitCode == 0) {
-                    ConsoleUtils.Success("Started {0}", container.Name);
+                    ConsoleUtils.Success("Started {0}", containerName);
                 } else {
-                    ConsoleUtils.Error("Failed to start {0}", container.Name);
+                    ConsoleUtils.Error("Failed to start {0}", containerName);
                 }
             }
         } else if (ConsoleUtils.Confirmation("Start {0}", projectName)) {

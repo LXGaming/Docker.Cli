@@ -4,6 +4,10 @@ namespace LXGaming.Docker.Cli.Services.Docker.Utilities;
 
 public static class DockerUtils {
 
+    public static string GetName(string name) {
+        return name.TrimStart('/');
+    }
+
     public static string? GetService(IDictionary<string, string> labels) {
         return labels.TryGetValue("com.docker.compose.service", out var value) ? value : null;
     }

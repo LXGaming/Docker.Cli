@@ -4,6 +4,10 @@ namespace LXGaming.Docker.Cli.Services.Docker.Utilities;
 
 public static class DockerExtensions {
 
+    public static string GetName(this ContainerInspectResponse response) {
+        return DockerUtils.GetName(response.Name);
+    }
+
     public static string? GetService(this ContainerInspectResponse response) {
         return DockerUtils.GetService(response.Config.Labels);
     }
