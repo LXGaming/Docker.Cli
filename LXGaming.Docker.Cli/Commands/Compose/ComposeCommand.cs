@@ -1,4 +1,5 @@
-﻿using LXGaming.Docker.Cli.Models;
+﻿using Docker.DotNet.Models;
+using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Services.Docker;
 using LXGaming.Docker.Cli.Services.Docker.Utilities;
 using LXGaming.Docker.Cli.Utilities;
@@ -58,29 +59,56 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        var existingContainers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
+        List<ContainerInspectResponse> existingContainers;
+        try {
+            existingContainers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
+        } catch (Exception ex) {
+            existingContainers = [];
+            ConsoleUtils.Error(ex, "Encountered error while getting existing containers");
+        }
 
         ConsoleUtils.Progress("Pulling {0}", choice.Name);
-        try {
-            await DockerService.PullComposeAsync([choice.Id], choice.Name);
+        var pullResult = await DockerService.PullComposeAsync([choice.Id], choice.Name);
+        if (pullResult.ExitCode == 0) {
             ConsoleUtils.Success("Pulled {0}", choice.Name);
-        } catch (Exception ex) {
-            ConsoleUtils.Error("Failed to pull {0}: {1}", choice.Name, ex.Message);
+        } else {
+            ConsoleUtils.Error("Failed to pull {0}", choice.Name);
         }
 
         ConsoleUtils.Progress("Stopping {0}", choice.Name);
-        await DockerService.StopComposeAsync([choice.Id], choice.Name);
-        ConsoleUtils.Success("Stopped {0}", choice.Name);
+        var stopResult = await DockerService.StopComposeAsync([choice.Id], choice.Name);
+        if (stopResult.ExitCode == 0) {
+            ConsoleUtils.Success("Stopped {0}", choice.Name);
+        } else {
+            ConsoleUtils.Error("Failed to stop {0}", choice.Name);
+            return 1;
+        }
 
         ConsoleUtils.Progress("Removing {0}", choice.Name);
-        await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
-        ConsoleUtils.Success("Removed {0}", choice.Name);
+        var removeResult = await DockerService.RemoveComposeAsync([choice.Id], choice.Name, stop: true);
+        if (removeResult.ExitCode == 0) {
+            ConsoleUtils.Success("Removed {0}", choice.Name);
+        } else {
+            ConsoleUtils.Error("Failed to remove {0}", choice.Name);
+            return 1;
+        }
 
         ConsoleUtils.Progress("Creating {0}", choice.Name);
-        await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
-        ConsoleUtils.Success("Created {0}", choice.Name);
+        var upResult = await DockerService.UpComposeAsync([choice.Id], choice.Name, noStart: true);
+        if (upResult.ExitCode == 0) {
+            ConsoleUtils.Success("Created {0}", choice.Name);
+        } else {
+            ConsoleUtils.Error("Failed to create {0}", choice.Name);
+            return 1;
+        }
 
-        var containers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
+        List<ContainerInspectResponse> containers;
+        try {
+            containers = await DockerService.ProcessStatusComposeAsync([choice.Id], choice.Name);
+        } catch (Exception ex) {
+            containers = [];
+            ConsoleUtils.Error(ex, "Encountered error while getting containers");
+        }
 
         if (settings.RestoreState && existingContainers.Count != 0) {
             var restoreContainers = containers
@@ -96,13 +124,21 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
             foreach (var container in restoreContainers) {
                 ConsoleUtils.Progress("Starting {0}", container.Name);
-                await DockerService.StartContainerAsync([container.ID]);
-                ConsoleUtils.Success("Started {0}", container.Name);
+                var startResult = await DockerService.StartContainerAsync([container.ID]);
+                if (startResult.ExitCode == 0) {
+                    ConsoleUtils.Success("Started {0}", container.Name);
+                } else {
+                    ConsoleUtils.Error("Failed to start {0}", container.Name);
+                }
             }
         } else if (ConsoleUtils.Confirmation("Start {0}", choice.Name)) {
             ConsoleUtils.Progress("Starting {0}", choice.Name);
-            await DockerService.StartComposeAsync([choice.Id], choice.Name);
-            ConsoleUtils.Success("Started {0}", choice.Name);
+            var startResult = await DockerService.StartComposeAsync([choice.Id], choice.Name);
+            if (startResult.ExitCode == 0) {
+                ConsoleUtils.Success("Started {0}", choice.Name);
+            } else {
+                ConsoleUtils.Error("Failed to start {0}", choice.Name);
+            }
         }
 
         if (settings.CheckNames) {

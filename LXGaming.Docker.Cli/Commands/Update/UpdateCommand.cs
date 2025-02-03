@@ -18,12 +18,11 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
             var prefix = GetPrefix(index + 1, images.Count);
 
             ConsoleUtils.Progress($"{prefix} Pulling {{0}}", image);
-
-            try {
-                await DockerService.PullImageAsync(image);
+            var result = await DockerService.PullImageAsync(image);
+            if (result.ExitCode == 0) {
                 ConsoleUtils.Success($"{prefix} Pulled {{0}}", image);
-            } catch (Exception ex) {
-                ConsoleUtils.Error($"{prefix} Failed to pull {{0}}: {{1}}", image, ex.Message);
+            } else {
+                ConsoleUtils.Error($"{prefix} Failed to pull {{0}}", image);
             }
         }
 
