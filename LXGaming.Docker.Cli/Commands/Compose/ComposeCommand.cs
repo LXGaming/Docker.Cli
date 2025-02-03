@@ -63,6 +63,15 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
+        ConsoleUtils.Progress("Validating {0}", projectName);
+        var configResult = await DockerService.ConfigComposeAsync(files, projectName);
+        if (configResult.ExitCode == 0) {
+            ConsoleUtils.Success("Validated {0}", projectName);
+        } else {
+            ConsoleUtils.Error("Failed to validate {0}", projectName);
+            return 1;
+        }
+
         List<ContainerInspectResponse> existingContainers;
         try {
             existingContainers = await DockerService.ProcessStatusComposeAsync(files, projectName);

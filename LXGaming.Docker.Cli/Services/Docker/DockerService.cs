@@ -10,6 +10,16 @@ namespace LXGaming.Docker.Cli.Services.Docker;
 
 public class DockerService {
 
+    public static Task<ProcessResult> ConfigComposeAsync(IEnumerable<string> files, string? projectName = null) {
+        var startInfo = CreateStartInfo(false);
+        AddComposeArguments(startInfo.ArgumentList, files, projectName);
+        startInfo.ArgumentList.AddRange([
+            "config",
+            "--quiet"
+        ]);
+        return ExecuteAsync(startInfo);
+    }
+
     public static async Task<List<ContainerInspectResponse>> ProcessStatusComposeAsync(IEnumerable<string> files,
         string? projectName = null) {
         var startInfo = CreateStartInfo(true);
