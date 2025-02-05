@@ -133,18 +133,20 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
         if (settings.CheckNames) {
             foreach (var container in containers) {
+                var containerName = container.GetName();
                 var service = container.GetService();
+
                 if (!string.IsNullOrEmpty(service)
-                    && !string.Equals(container.Name, service, StringComparison.OrdinalIgnoreCase)) {
+                    && !string.Equals(containerName, service, StringComparison.OrdinalIgnoreCase)) {
                     ConsoleUtils.Error("Container and Service mismatch [grey](expected {0}, got {1})[/]",
-                        container.Name, service);
+                        containerName, service);
                 }
 
                 if (!container.IsDefaultHostname()
                     && !container.IsHostNetwork()
-                    && !string.Equals(container.Name, container.Config.Hostname, StringComparison.OrdinalIgnoreCase)) {
+                    && !string.Equals(containerName, container.Config.Hostname, StringComparison.OrdinalIgnoreCase)) {
                     ConsoleUtils.Error("Container and Hostname mismatch [grey](expected {0}, got {1})[/]",
-                        container.Name, container.Config.Hostname);
+                        containerName, container.Config.Hostname);
                 }
             }
         }
