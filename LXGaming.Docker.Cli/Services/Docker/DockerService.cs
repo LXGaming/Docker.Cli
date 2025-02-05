@@ -155,11 +155,16 @@ public class DockerService {
         return images;
     }
 
-    public static Task<ProcessResult> PullImageAsync(string image) {
-        var startInfo = CreateStartInfo(false);
+    public static Task<ProcessResult> PullImageAsync(string image, bool quiet = false) {
+        var startInfo = CreateStartInfo(quiet);
         startInfo.ArgumentList.AddRange([
             "image", "pull", image
         ]);
+
+        if (quiet) {
+            startInfo.ArgumentList.Add("--quiet");
+        }
+
         return ExecuteAsync(startInfo);
     }
 

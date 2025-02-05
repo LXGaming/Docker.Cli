@@ -18,7 +18,7 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
             var prefix = ConsoleUtils.CreateListPrefix(index, images.Count);
 
             ConsoleUtils.Progress($"{prefix} Pulling {{0}}", image);
-            var result = await DockerService.PullImageAsync(image);
+            var result = await DockerService.PullImageAsync(image, settings.Quiet);
             if (result.ExitCode == 0) {
                 ConsoleUtils.Success($"{prefix} Pulled {{0}}", image);
             } else {
