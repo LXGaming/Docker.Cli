@@ -4,6 +4,9 @@ using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
+AppDomain.CurrentDomain.ProcessExit += (_, _) => ConsoleUtils.Shutdown();
+Console.CancelKeyPress += (_, _) => ConsoleUtils.Shutdown();
+
 var app = new CommandApp();
 app.Configure(config => {
     config.SetApplicationName(Constants.Application.Name);
@@ -20,6 +23,5 @@ try {
     AnsiConsole.WriteException(ex);
     return 1;
 } finally {
-    AnsiConsole.Cursor.Show();
-    AnsiConsole.Reset();
+    ConsoleUtils.Shutdown();
 }

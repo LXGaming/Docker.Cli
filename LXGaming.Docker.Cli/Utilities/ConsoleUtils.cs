@@ -80,6 +80,11 @@ public static class ConsoleUtils {
         return Format($"[blue]{message}[/]", args);
     }
 
+    public static void Shutdown() {
+        AnsiConsole.Cursor.Show();
+        AnsiConsole.Reset();
+    }
+
     private static Status CreateStatus() {
         return AnsiConsole.Status()
             .Spinner(Spinner.Known.Ascii);
