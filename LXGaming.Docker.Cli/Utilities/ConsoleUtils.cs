@@ -14,6 +14,16 @@ public static class ConsoleUtils {
         });
     }
 
+    public static void Status(Action<StatusContext> action) {
+        var status = FormatStatus("Initialising");
+        CreateStatus().Start(status, action);
+    }
+
+    public static Task StatusAsync(Func<StatusContext, Task> action) {
+        var status = FormatStatus("Initialising");
+        return CreateStatus().StartAsync(status, action);
+    }
+
     public static void Error(string? message, params object?[] args) {
         Error(null, message, args);
     }
@@ -64,6 +74,15 @@ public static class ConsoleUtils {
         var indexString = (index + 1).ToString().PadLeft(countString.Length, ' ');
 
         return $"[grey][[[white]{indexString}[/]/[white]{countString}[/]]][/]";
+    }
+
+    public static string FormatStatus(string? message, params object?[] args) {
+        return Format($"[blue]{message}[/]", args);
+    }
+
+    private static Status CreateStatus() {
+        return AnsiConsole.Status()
+            .Spinner(Spinner.Known.Ascii);
     }
 
     private static string Format(string message, params object?[] args) {
