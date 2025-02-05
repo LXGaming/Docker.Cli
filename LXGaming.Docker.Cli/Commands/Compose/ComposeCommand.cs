@@ -12,7 +12,9 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
     public override ValidationResult Validate(CommandContext context, ComposeSettings settings) {
         if (!Directory.Exists(settings.Path)) {
-            return ValidationResult.Error($"Path does not exist: {settings.Path}");
+            return Path.Exists(settings.Path)
+                ? ValidationResult.Error("Path is not a directory")
+                : ValidationResult.Error("Path does not exist");
         }
 
         return base.Validate(context, settings);
@@ -21,7 +23,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
     public override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
-            ConsoleUtils.Error("Directory does not exist {0}", path);
+            ConsoleUtils.Error("Directory {0} does not exist", path);
             return 1;
         }
 
@@ -51,7 +53,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
         var file = choice.Id;
         if (!File.Exists(file)) {
-            ConsoleUtils.Error("File does not exist {0}", file);
+            ConsoleUtils.Error("File {0} does not exist", file);
             return 1;
         }
 
