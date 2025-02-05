@@ -15,7 +15,7 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
 
         for (var index = 0; index < images.Count; index++) {
             var image = images[index];
-            var prefix = GetPrefix(index + 1, images.Count);
+            var prefix = ConsoleUtils.CreateListPrefix(index, images.Count);
 
             ConsoleUtils.Progress($"{prefix} Pulling {{0}}", image);
             var result = await DockerService.PullImageAsync(image);
@@ -27,12 +27,5 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
         }
 
         return 0;
-    }
-
-    private static string GetPrefix(int index, int size) {
-        var sizeString = size.ToString();
-        var indexString = index.ToString().PadLeft(sizeString.Length, ' ');
-
-        return $"[grey][[[white]{indexString}[/]/[white]{sizeString}[/]]][/]";
     }
 }

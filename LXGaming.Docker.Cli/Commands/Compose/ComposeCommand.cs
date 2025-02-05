@@ -26,15 +26,15 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         var choices = !string.IsNullOrEmpty(settings.Name)
-            ? GetFilteredChoices(settings.Path, settings.Name)
-            : GetChoices(settings.Path);
+            ? ChoiceUtils.GetFilteredComposeFiles(path, settings.Name)
+            : ChoiceUtils.GetComposeFiles(path).ToList();
         if (choices.Count == 0) {
             ConsoleUtils.Error("No compositions available");
             return 1;
         }
 
         Choice choice;
-        var autoChoice = settings.AutoSelect ? GetAutoChoice(choices) : null;
+        var autoChoice = settings.AutoSelect ? ChoiceUtils.SingleOrDefault(choices) : null;
         if (autoChoice != null) {
             choice = autoChoice;
         } else {
@@ -45,7 +45,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                 SearchEnabled = true
             };
 
-            AddChoices(selection, path, choices);
+            ChoiceUtils.AddFiles(selection, path, choices);
             choice = AnsiConsole.Prompt(selection);
         }
 
@@ -148,86 +148,5 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         return 0;
-    }
-
-    private static void AddChoices(SelectionPrompt<Choice> prompt, string path, IEnumerable<Choice> choices) {
-        var items = new Dictionary<string, ISelectionItem<Choice>>();
-        foreach (var choice in choices.OrderBy(choice => choice.Id)) {
-            var directory = Path.GetDirectoryName(choice.Id);
-            if (string.IsNullOrEmpty(directory) || string.Equals(path, directory)) {
-                prompt.AddChoice(choice);
-                continue;
-            }
-
-            var relativePath = Path.GetRelativePath(path, directory);
-            if (string.IsNullOrEmpty(relativePath) || string.Equals(relativePath, ".")) {
-                prompt.AddChoice(choice);
-                continue;
-            }
-
-            if (items.TryGetValue(relativePath, out var existingItem)) {
-                existingItem.AddChild(choice);
-                continue;
-            }
-
-            var item = prompt.AddChoice(new Choice(directory, relativePath));
-            item.AddChild(choice);
-            items.Add(relativePath, item);
-        }
-    }
-
-    private static IEnumerable<string> EnumerateFiles(string path, SearchOption searchOption, params string[] extensions) {
-        foreach (var file in Directory.EnumerateFiles(path, "*", searchOption)) {
-            var extension = Path.GetExtension(file);
-            if (extensions.Contains(extension, StringComparer.OrdinalIgnoreCase)) {
-                yield return file;
-            }
-        }
-    }
-
-    private static Choice? GetAutoChoice(ICollection<Choice> choices) {
-        return choices.Count == 1 ? choices.Single() : null;
-    }
-
-    private static HashSet<Choice> GetFilteredChoices(string path, string name) {
-        var choices = GetChoices(path);
-        if (choices.Count == 0) {
-            return choices;
-        }
-
-        var filteredChoices = new HashSet<Choice>();
-
-        foreach (var choice in choices) {
-            if (choice.Name?.Equals(name, StringComparison.OrdinalIgnoreCase) == true) {
-                filteredChoices.Add(choice);
-            }
-        }
-
-        if (filteredChoices.Count != 0) {
-            return filteredChoices;
-        }
-
-        foreach (var choice in choices) {
-            if (choice.Name?.Contains(name, StringComparison.OrdinalIgnoreCase) == true) {
-                filteredChoices.Add(choice);
-            }
-        }
-
-        return filteredChoices;
-    }
-
-    private static HashSet<Choice> GetChoices(string path) {
-        var choices = new HashSet<Choice>();
-
-        foreach (var file in EnumerateFiles(path, SearchOption.AllDirectories, ".yaml", ".yml")) {
-            var fileName = Path.GetFileName(file);
-            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
-
-            var name = !string.IsNullOrWhiteSpace(fileNameWithoutExtension) ? fileNameWithoutExtension : fileName;
-
-            choices.Add(new Choice(file, name));
-        }
-
-        return choices;
     }
 }

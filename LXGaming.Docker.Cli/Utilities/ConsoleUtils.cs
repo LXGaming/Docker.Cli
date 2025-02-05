@@ -59,6 +59,13 @@ public static class ConsoleUtils {
         }
     }
 
+    public static string CreateListPrefix(int index, int count) {
+        var countString = count.ToString();
+        var indexString = (index + 1).ToString().PadLeft(countString.Length, ' ');
+
+        return $"[grey][[[white]{indexString}[/]/[white]{countString}[/]]][/]";
+    }
+
     private static string Format(string message, params object?[] args) {
         for (var index = 0; index < args.Length; index++) {
             var value = Markup.Escape(args[index]?.ToString() ?? "null");
