@@ -7,7 +7,7 @@ namespace LXGaming.Docker.Cli.Commands.Update;
 public class UpdateCommand : AsyncCommand<UpdateSettings> {
 
     public override async Task<int> ExecuteAsync(CommandContext context, UpdateSettings settings) {
-        var images = await DockerService.ListImageAsync();
+        var images = await ListImageAsync();
         if (images.Count == 0) {
             ConsoleUtils.Error("No images found");
             return 1;
@@ -27,5 +27,13 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
         }
 
         return 0;
+    }
+
+    private static async Task<List<string>> ListImageAsync() {
+        var images = await DockerService.ListImageAsync();
+        return images
+            .Where(image => !image.EndsWith(":<none>"))
+            .OrderBy(image => image)
+            .ToList();
     }
 }

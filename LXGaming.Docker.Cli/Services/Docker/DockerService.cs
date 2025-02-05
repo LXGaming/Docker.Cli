@@ -139,7 +139,6 @@ public class DockerService {
         var startInfo = CreateStartInfo(true);
         startInfo.ArgumentList.AddRange([
             "image", "ls",
-            "--filter", "dangling=false",
             "--format", "{{.Repository}}:{{.Tag}}"
         ]);
 
