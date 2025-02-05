@@ -109,9 +109,6 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                         .Any(existingContainer => string.Equals(existingContainer.Name, container.Name));
                 })
                 .ToList();
-            if (restoreContainers.Count == 0) {
-                return 0;
-            }
 
             foreach (var container in restoreContainers) {
                 var containerName = container.GetName();
