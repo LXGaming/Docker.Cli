@@ -70,12 +70,12 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        List<ContainerInspectResponse> existingContainers;
+        Dictionary<string, ContainerState> containerStates;
         try {
-            existingContainers = await DockerService.ProcessStatusComposeAsync(files, projectName);
+            containerStates = await GetContainerStatesAsync(files, projectName);
         } catch (Exception ex) {
-            existingContainers = [];
-            ConsoleUtils.Error(ex, "Encountered error while getting existing containers");
+            containerStates = new Dictionary<string, ContainerState>();
+            ConsoleUtils.Error(ex, "Encountered error while getting container states");
         }
 
         var pullResult = await DockerService.PullComposeAsync(files, projectName);
@@ -101,17 +101,12 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             ConsoleUtils.Error(ex, "Encountered error while getting containers");
         }
 
-        if (settings.RestoreState && existingContainers.Count != 0) {
-            var restoreContainers = containers
-                .Where(container => {
-                    return existingContainers
-                        .Where(existingContainer => existingContainer.State.Running)
-                        .Any(existingContainer => string.Equals(existingContainer.Name, container.Name));
-                })
-                .ToList();
-
-            foreach (var container in restoreContainers) {
+        if (settings.RestoreState && containerStates.Count != 0) {
+            foreach (var container in containers) {
                 var containerName = container.GetName();
+                if (!containerStates.TryGetValue(containerName, out var containerState) || !containerState.Running) {
+                    continue;
+                }
 
                 ConsoleUtils.Progress("Starting {0}", containerName);
                 var startResult = await DockerService.StartContainerAsync([container.ID]);
@@ -149,5 +144,11 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         return 0;
+    }
+
+    private static async Task<Dictionary<string, ContainerState>> GetContainerStatesAsync(IEnumerable<string> files,
+        string? projectName = null) {
+        var containers = await DockerService.ProcessStatusComposeAsync(files, projectName);
+        return containers.ToDictionary(container => container.GetName(), container => container.State);
     }
 }
