@@ -108,19 +108,14 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
         if (settings.RestoreState && containerStates.Count != 0) {
             var containers = await lazyContainers.Value;
-            foreach (var container in containers) {
-                var containerName = container.GetName();
-                if (!containerStates.TryGetValue(containerName, out var containerState) || !containerState.Running) {
-                    continue;
-                }
-
-                ConsoleUtils.Progress("Starting {0}", containerName);
-                var startResult = await DockerService.StartContainerAsync([container.ID], true);
-                if (startResult.ExitCode == 0) {
-                    ConsoleUtils.Success("Started {0}", containerName);
-                } else {
-                    ConsoleUtils.Error("Failed to start {0}", containerName);
-                }
+            if (settings.RestoreStateStatus) {
+                await ConsoleUtils.StatusAsync(ctx => {
+                    return RestoreStateAsync(settings, containers, containerStates, (message, args) => {
+                        ctx.Status(ConsoleUtils.FormatStatus(message, args));
+                    });
+                });
+            } else {
+                await RestoreStateAsync(settings, containers, containerStates, ConsoleUtils.Progress);
             }
         } else if (ConsoleUtils.Confirmation("Start {0}", projectName)) {
             var startResult = await DockerService.StartComposeAsync(files, projectName);
@@ -151,6 +146,33 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         return 0;
+    }
+
+    private static async Task RestoreStateAsync(ComposeSettings settings, List<ContainerInspectResponse> containers,
+        Dictionary<string, ContainerState> containerStates, Action<string?, object?[]> progress) {
+        for (var index = 0; index < containers.Count; index++) {
+            var container = containers[index];
+            var containerName = container.GetName();
+            if (!containerStates.TryGetValue(containerName, out var containerState)) {
+                continue;
+            }
+
+            var prefix = ConsoleUtils.CreateListPrefix(index, containers.Count);
+            if (containerState.Running) {
+                progress($"{prefix} Starting {{0}}", [containerName]);
+                var startResult = await DockerService.StartContainerAsync([container.ID],
+                    settings.RestoreStateQuiet || settings.RestoreStateStatus);
+                if (startResult.ExitCode == 0) {
+                    ConsoleUtils.Success(
+                        settings.RestoreStateStatus ? "Started {0}" : $"{prefix} Started {{0}}",
+                        containerName);
+                } else {
+                    ConsoleUtils.Error(
+                        settings.RestoreStateStatus ? "Failed to start {0}" : $"{prefix} Failed to start {{0}}",
+                        containerName);
+                }
+            }
+        }
     }
 
     private static async Task<Dictionary<string, ContainerState>> GetContainerStatesAsync(IEnumerable<string> files,
