@@ -114,7 +114,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                 }
 
                 ConsoleUtils.Progress("Starting {0}", containerName);
-                var startResult = await DockerService.StartContainerAsync([container.ID]);
+                var startResult = await DockerService.StartContainerAsync([container.ID], true);
                 if (startResult.ExitCode == 0) {
                     ConsoleUtils.Success("Started {0}", containerName);
                 } else {

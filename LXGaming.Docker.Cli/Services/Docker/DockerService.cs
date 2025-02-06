@@ -126,8 +126,8 @@ public class DockerService {
                ?? throw new JsonException($"Failed to deserialize {nameof(List<ContainerInspectResponse>)}");
     }
 
-    public static Task<ProcessResult> StartContainerAsync(IEnumerable<string> containers) {
-        var startInfo = CreateStartInfo(false);
+    public static Task<ProcessResult> StartContainerAsync(IEnumerable<string> containers, bool quiet = false) {
+        var startInfo = CreateStartInfo(quiet);
         startInfo.ArgumentList.AddRange([
             "container", "start"
         ]);
