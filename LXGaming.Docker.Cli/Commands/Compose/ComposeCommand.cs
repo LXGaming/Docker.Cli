@@ -97,7 +97,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        var containers = new Lazy<Task<List<ContainerInspectResponse>>>(async () => {
+        var lazyContainers = new Lazy<Task<List<ContainerInspectResponse>>>(async () => {
             try {
                 return await DockerService.ProcessStatusComposeAsync(files, projectName);
             } catch (Exception ex) {
@@ -107,7 +107,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         });
 
         if (settings.RestoreState && containerStates.Count != 0) {
-            foreach (var container in await containers.Value) {
+            var containers = await lazyContainers.Value;
+            foreach (var container in containers) {
                 var containerName = container.GetName();
                 if (!containerStates.TryGetValue(containerName, out var containerState) || !containerState.Running) {
                     continue;
@@ -129,7 +130,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         if (settings.CheckNames) {
-            foreach (var container in await containers.Value) {
+            var containers = await lazyContainers.Value;
+            foreach (var container in containers) {
                 var containerName = container.GetName();
                 var service = container.GetService();
 
