@@ -71,11 +71,15 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         Dictionary<string, ContainerState> containerStates;
-        try {
-            containerStates = await GetContainerStatesAsync(files, projectName);
-        } catch (Exception ex) {
+        if (settings.RestoreState) {
+            try {
+                containerStates = await GetContainerStatesAsync(files, projectName);
+            } catch (Exception ex) {
+                ConsoleUtils.Error(ex, "Encountered error while getting container states");
+                containerStates = new Dictionary<string, ContainerState>();
+            }
+        } else {
             containerStates = new Dictionary<string, ContainerState>();
-            ConsoleUtils.Error(ex, "Encountered error while getting container states");
         }
 
         var pullResult = await DockerService.PullComposeAsync(files, projectName);
@@ -93,16 +97,17 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        List<ContainerInspectResponse> containers;
-        try {
-            containers = await DockerService.ProcessStatusComposeAsync(files, projectName);
-        } catch (Exception ex) {
-            containers = [];
-            ConsoleUtils.Error(ex, "Encountered error while getting containers");
-        }
+        var containers = new Lazy<Task<List<ContainerInspectResponse>>>(async () => {
+            try {
+                return await DockerService.ProcessStatusComposeAsync(files, projectName);
+            } catch (Exception ex) {
+                ConsoleUtils.Error(ex, "Encountered error while getting containers");
+                return [];
+            }
+        });
 
         if (settings.RestoreState && containerStates.Count != 0) {
-            foreach (var container in containers) {
+            foreach (var container in await containers.Value) {
                 var containerName = container.GetName();
                 if (!containerStates.TryGetValue(containerName, out var containerState) || !containerState.Running) {
                     continue;
@@ -124,7 +129,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         if (settings.CheckNames) {
-            foreach (var container in containers) {
+            foreach (var container in await containers.Value) {
                 var containerName = container.GetName();
                 var service = container.GetService();
 
