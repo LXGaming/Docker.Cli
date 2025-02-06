@@ -10,6 +10,18 @@ namespace LXGaming.Docker.Cli.Services.Docker;
 
 public class DockerService {
 
+    public static Task<ProcessResult> ComposeAsync(IEnumerable<string> files, string? projectName = null,
+        IEnumerable<string>? arguments = null) {
+        var startInfo = CreateStartInfo(false);
+        AddComposeArguments(startInfo.ArgumentList, files, projectName);
+
+        if (arguments != null) {
+            startInfo.ArgumentList.AddRange(arguments);
+        }
+
+        return ExecuteAsync(startInfo);
+    }
+
     public static Task<ProcessResult> ConfigComposeAsync(IEnumerable<string> files, string? projectName = null) {
         var startInfo = CreateStartInfo(false);
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
@@ -47,61 +59,10 @@ public class DockerService {
         return await InspectContainerAsync(containers);
     }
 
-    public static Task<ProcessResult> PullComposeAsync(IEnumerable<string> files, string? projectName = null) {
-        var startInfo = CreateStartInfo(false);
-        AddComposeArguments(startInfo.ArgumentList, files, projectName);
-        startInfo.ArgumentList.Add("pull");
-        return ExecuteAsync(startInfo);
-    }
-
-    public static Task<ProcessResult> RemoveComposeAsync(IEnumerable<string> files, string? projectName = null,
-        bool stop = false, bool volumes = false) {
-        var startInfo = CreateStartInfo(false);
-        AddComposeArguments(startInfo.ArgumentList, files, projectName);
-        startInfo.ArgumentList.AddRange([
-            "rm",
-            "--force"
-        ]);
-
-        if (stop) {
-            startInfo.ArgumentList.Add("--stop");
-        }
-
-        if (volumes) {
-            startInfo.ArgumentList.Add("--volumes");
-        }
-
-        return ExecuteAsync(startInfo);
-    }
-
     public static Task<ProcessResult> StartComposeAsync(IEnumerable<string> files, string? projectName = null) {
         var startInfo = CreateStartInfo(false);
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
         startInfo.ArgumentList.Add("start");
-        return ExecuteAsync(startInfo);
-    }
-
-    public static Task<ProcessResult> UpComposeAsync(IEnumerable<string> files, string? projectName = null,
-        bool forceRecreate = false, bool noStart = false, bool removeOrphans = false) {
-        var startInfo = CreateStartInfo(false);
-        AddComposeArguments(startInfo.ArgumentList, files, projectName);
-        startInfo.ArgumentList.AddRange([
-            "up",
-            "--detach"
-        ]);
-
-        if (forceRecreate) {
-            startInfo.ArgumentList.Add("--force-recreate");
-        }
-
-        if (noStart) {
-            startInfo.ArgumentList.Add("--no-start");
-        }
-
-        if (removeOrphans) {
-            startInfo.ArgumentList.Add("--remove-orphans");
-        }
-
         return ExecuteAsync(startInfo);
     }
 

@@ -11,6 +11,10 @@ namespace LXGaming.Docker.Cli.Commands.Compose;
 public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
     public override ValidationResult Validate(CommandContext context, ComposeSettings settings) {
+        if (context.Remaining.Raw.Count == 0) {
+            return ValidationResult.Error("Missing compose arguments");
+        }
+
         if (!Directory.Exists(settings.Path)) {
             return Path.Exists(settings.Path)
                 ? ValidationResult.Error("Path is not a directory")
@@ -82,18 +86,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             containerStates = new Dictionary<string, ContainerState>();
         }
 
-        var pullResult = await DockerService.PullComposeAsync(files, projectName);
-        if (pullResult.ExitCode != 0) {
-            // no-op
-        }
-
-        var removeResult = await DockerService.RemoveComposeAsync(files, projectName, stop: true);
-        if (removeResult.ExitCode != 0) {
-            return 1;
-        }
-
-        var upResult = await DockerService.UpComposeAsync(files, projectName, noStart: true);
-        if (upResult.ExitCode != 0) {
+        var result = await DockerService.ComposeAsync(files, projectName, context.Remaining.Raw);
+        if (result.ExitCode != 0) {
             return 1;
         }
 
