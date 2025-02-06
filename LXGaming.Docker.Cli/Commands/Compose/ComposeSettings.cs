@@ -1,4 +1,5 @@
-﻿using Spectre.Console.Cli;
+﻿using LXGaming.Docker.Cli.Models;
+using Spectre.Console.Cli;
 
 namespace LXGaming.Docker.Cli.Commands.Compose;
 
@@ -19,12 +20,9 @@ public class ComposeSettings : CommandSettings {
     [CommandOption("-r|--restore-state")]
     public bool RestoreState { get; init; }
 
-    [CommandOption("--restore-state-quiet")]
-    public bool RestoreStateQuiet { get; init; }
-
-    [CommandOption("--restore-state-status")]
-    public bool RestoreStateStatus { get; init; }
-
     [CommandOption("--skip-confirmation")]
     public bool SkipConfirmation { get; init; }
+
+    [CommandOption("-s|--style <None|Quiet|Status>")]
+    public OutputStyle Style { get; init; }
 }

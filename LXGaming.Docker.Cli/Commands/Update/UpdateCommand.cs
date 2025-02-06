@@ -1,4 +1,5 @@
-﻿using LXGaming.Docker.Cli.Services.Docker;
+﻿using LXGaming.Docker.Cli.Models;
+using LXGaming.Docker.Cli.Services.Docker;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -14,31 +15,34 @@ public class UpdateCommand : AsyncCommand<UpdateSettings> {
             return 1;
         }
 
-        if (settings.Status) {
+        if (settings.Style == OutputStyle.Status) {
             await ConsoleUtils.StatusAsync(ctx => {
-                return ExecuteAsync(settings, images, (message, args) => {
-                    ctx.Status(ConsoleUtils.FormatStatus(message, args));
-                });
+                return ExecuteAsync(settings.Style, images,
+                    (message, args) => ctx.Status(ConsoleUtils.FormatStatus(message, args)));
             });
         } else {
-            await ExecuteAsync(settings, images, ConsoleUtils.Progress);
+            await ExecuteAsync(settings.Style, images, ConsoleUtils.Progress);
         }
 
         return 0;
     }
 
-    private static async Task ExecuteAsync(UpdateSettings settings, List<string> images,
+    private static async Task ExecuteAsync(OutputStyle style, List<string> images,
         Action<string?, object?[]> progress) {
         for (var index = 0; index < images.Count; index++) {
             var image = images[index];
             var prefix = ConsoleUtils.CreateListPrefix(index, images.Count);
 
             progress($"{prefix} Pulling {{0}}", [image]);
-            var result = await DockerService.PullImageAsync(image, settings.Quiet || settings.Status);
+            var result = await DockerService.PullImageAsync(image, style is OutputStyle.Quiet or OutputStyle.Status);
             if (result.ExitCode == 0) {
-                ConsoleUtils.Success(settings.Status ? "Pulled {0}" : $"{prefix} Pulled {{0}}", image);
+                ConsoleUtils.Success(
+                    style == OutputStyle.Status ? "Pulled {0}" : $"{prefix} Pulled {{0}}",
+                    image);
             } else {
-                ConsoleUtils.Error(settings.Status ? "Failed to pull {0}" : $"{prefix} Failed to pull {{0}}", image);
+                ConsoleUtils.Error(
+                    style == OutputStyle.Status ? "Failed to pull {0}" : $"{prefix} Failed to pull {{0}}",
+                    image);
             }
         }
     }

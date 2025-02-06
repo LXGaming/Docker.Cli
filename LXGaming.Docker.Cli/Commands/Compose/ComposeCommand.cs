@@ -108,14 +108,13 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
         if (settings.RestoreState && containerStates.Count != 0) {
             var containers = await lazyContainers.Value;
-            if (settings.RestoreStateStatus) {
+            if (settings.Style == OutputStyle.Status) {
                 await ConsoleUtils.StatusAsync(ctx => {
-                    return RestoreStateAsync(settings, containers, containerStates, (message, args) => {
-                        ctx.Status(ConsoleUtils.FormatStatus(message, args));
-                    });
+                    return RestoreStateAsync(settings.Style, containers, containerStates,
+                        (message, args) => ctx.Status(ConsoleUtils.FormatStatus(message, args)));
                 });
             } else {
-                await RestoreStateAsync(settings, containers, containerStates, ConsoleUtils.Progress);
+                await RestoreStateAsync(settings.Style, containers, containerStates, ConsoleUtils.Progress);
             }
         } else if (ConsoleUtils.Confirmation("Start {0}", projectName)) {
             var startResult = await DockerService.StartComposeAsync(files, projectName);
@@ -148,7 +147,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         return 0;
     }
 
-    private static async Task RestoreStateAsync(ComposeSettings settings, List<ContainerInspectResponse> containers,
+    private static async Task RestoreStateAsync(OutputStyle style, List<ContainerInspectResponse> containers,
         Dictionary<string, ContainerState> containerStates, Action<string?, object?[]> progress) {
         for (var index = 0; index < containers.Count; index++) {
             var container = containers[index];
@@ -161,14 +160,14 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             if (containerState.Running) {
                 progress($"{prefix} Starting {{0}}", [containerName]);
                 var startResult = await DockerService.StartContainerAsync([container.ID],
-                    settings.RestoreStateQuiet || settings.RestoreStateStatus);
+                    style is OutputStyle.Quiet or OutputStyle.Status);
                 if (startResult.ExitCode == 0) {
                     ConsoleUtils.Success(
-                        settings.RestoreStateStatus ? "Started {0}" : $"{prefix} Started {{0}}",
+                        style == OutputStyle.Status ? "Started {0}" : $"{prefix} Started {{0}}",
                         containerName);
                 } else {
                     ConsoleUtils.Error(
-                        settings.RestoreStateStatus ? "Failed to start {0}" : $"{prefix} Failed to start {{0}}",
+                        style == OutputStyle.Status ? "Failed to start {0}" : $"{prefix} Failed to start {{0}}",
                         containerName);
                 }
             }
