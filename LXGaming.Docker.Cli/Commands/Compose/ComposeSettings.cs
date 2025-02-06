@@ -17,6 +17,9 @@ public class ComposeSettings : CommandSettings {
     [CommandOption("--check-names")]
     public bool CheckNames { get; init; }
 
+    [CommandOption("--prompt-start")]
+    public bool PromptStart { get; init; }
+
     [CommandOption("-r|--restore-state")]
     public bool RestoreState { get; init; }
 

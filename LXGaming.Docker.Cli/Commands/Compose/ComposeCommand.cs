@@ -116,7 +116,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             } else {
                 await RestoreStateAsync(settings.Style, containers, containerStates, ConsoleUtils.Progress);
             }
-        } else if (ConsoleUtils.Confirmation("Start {0}", projectName)) {
+        } else if (settings.PromptStart && ConsoleUtils.Confirmation("Start {0}", projectName)) {
             var startResult = await DockerService.StartComposeAsync(files, projectName);
             if (startResult.ExitCode != 0) {
                 // no-op
