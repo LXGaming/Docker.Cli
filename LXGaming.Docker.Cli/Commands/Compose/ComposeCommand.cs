@@ -129,8 +129,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
                         containerName, service);
                 }
 
-                if (!container.IsDefaultHostname()
-                    && !container.IsHostNetwork()
+                if (!container.IsDefaultHostname() && !container.IsLocalHostname() && !container.IsHostNetwork()
                     && !string.Equals(containerName, container.Config.Hostname, StringComparison.OrdinalIgnoreCase)) {
                     ConsoleUtils.Error("Container and Hostname mismatch [grey](expected {0}, got {1})[/]",
                         containerName, container.Config.Hostname);

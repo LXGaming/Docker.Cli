@@ -16,6 +16,10 @@ public static class DockerExtensions {
         return DockerUtils.IsDefaultHostname(response.Config.Hostname, response.ID);
     }
 
+    public static bool IsLocalHostname(this ContainerInspectResponse response) {
+        return DockerUtils.IsLocalHostname(response.Config.Hostname);
+    }
+
     public static bool IsHostNetwork(this ContainerInspectResponse response) {
         return DockerUtils.IsHostNetwork(response.NetworkSettings.Networks);
     }
