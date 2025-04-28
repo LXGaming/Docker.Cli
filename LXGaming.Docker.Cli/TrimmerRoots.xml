@@ -1,0 +1,14 @@
+<linker>
+  <!-- Spectre.Console -->
+  <assembly fullname="System.Runtime">
+    <type fullname="System.Runtime.CompilerServices.TupleElementNamesAttribute" />
+    <type fullname="System.ValueTuple`1" />
+    <type fullname="System.ValueTuple`2" />
+    <type fullname="System.ValueTuple`3" />
+    <type fullname="System.ValueTuple`4" />
+    <type fullname="System.ValueTuple`5" />
+    <type fullname="System.ValueTuple`6" />
+    <type fullname="System.ValueTuple`7" />
+    <type fullname="System.ValueTuple`8" />
+  </assembly>
+</linker>
