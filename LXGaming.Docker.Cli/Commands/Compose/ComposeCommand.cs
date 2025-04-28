@@ -64,7 +64,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         var files = new List<string> { file };
         var projectName = choice.Name;
 
-        if (!settings.SkipConfirmation && !ConsoleUtils.Confirmation("Confirm update for {0}", projectName)) {
+        if (!settings.SkipConfirmation && !ConsoleUtils.Confirmation("Confirm {0}", projectName)) {
             ConsoleUtils.Error("Cancelled");
             return 1;
         }
