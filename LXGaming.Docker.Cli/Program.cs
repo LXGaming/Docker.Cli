@@ -1,5 +1,5 @@
 ﻿using LXGaming.Docker.Cli.Commands.Compose;
-using LXGaming.Docker.Cli.Commands.Update;
+using LXGaming.Docker.Cli.Commands.Pull;
 using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -14,7 +14,7 @@ app.Configure(config => {
     config.PropagateExceptions();
 
     config.AddCommand<ComposeCommand>("compose");
-    config.AddCommand<UpdateCommand>("update");
+    config.AddCommand<PullCommand>("pull");
 });
 
 try {

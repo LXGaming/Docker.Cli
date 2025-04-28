@@ -4,11 +4,11 @@ using LXGaming.Docker.Cli.Utilities;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace LXGaming.Docker.Cli.Commands.Update;
+namespace LXGaming.Docker.Cli.Commands.Pull;
 
-public class UpdateCommand : AsyncCommand<UpdateSettings> {
+public class PullCommand : AsyncCommand<PullSettings> {
 
-    public override async Task<int> ExecuteAsync(CommandContext context, UpdateSettings settings) {
+    public override async Task<int> ExecuteAsync(CommandContext context, PullSettings settings) {
         var images = await ListImageAsync();
         if (images.Count == 0) {
             ConsoleUtils.Error("No images found");
