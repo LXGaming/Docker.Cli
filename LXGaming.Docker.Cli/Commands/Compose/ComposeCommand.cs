@@ -32,8 +32,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
 
         var choices = !string.IsNullOrEmpty(settings.Name)
-            ? ChoiceUtils.GetFilteredComposeFiles(path, settings.Name)
-            : ChoiceUtils.GetComposeFiles(path).ToList();
+            ? ChoiceUtils.GetFilteredComposeProjects(path, settings.Name)
+            : ChoiceUtils.GetComposeProjects(path).ToList();
         if (choices.Count == 0) {
             ConsoleUtils.Error("No compositions available");
             return 1;
