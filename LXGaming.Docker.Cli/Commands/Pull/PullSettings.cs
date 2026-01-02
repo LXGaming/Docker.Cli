@@ -1,4 +1,4 @@
-﻿using LXGaming.Docker.Cli.Models;
+using LXGaming.Docker.Cli.Models;
 using Spectre.Console.Cli;
 
 namespace LXGaming.Docker.Cli.Commands.Pull;

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Docker.DotNet.Models;
 
 namespace LXGaming.Docker.Cli.Services.Docker.Utilities;

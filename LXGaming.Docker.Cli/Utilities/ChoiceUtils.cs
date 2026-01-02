@@ -1,4 +1,4 @@
-﻿using LXGaming.Docker.Cli.Models;
+using LXGaming.Docker.Cli.Models;
 using Spectre.Console;
 
 namespace LXGaming.Docker.Cli.Utilities;

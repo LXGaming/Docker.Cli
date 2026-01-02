@@ -1,4 +1,4 @@
-﻿namespace LXGaming.Docker.Cli.Models;
+namespace LXGaming.Docker.Cli.Models;
 
 public record ProcessResult {
 

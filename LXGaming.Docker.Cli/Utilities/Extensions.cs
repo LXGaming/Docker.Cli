@@ -1,4 +1,4 @@
-﻿namespace LXGaming.Docker.Cli.Utilities;
+namespace LXGaming.Docker.Cli.Utilities;
 
 public static class Extensions {
 

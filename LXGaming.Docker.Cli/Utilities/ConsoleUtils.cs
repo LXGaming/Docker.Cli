@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Spectre.Console;
 
 namespace LXGaming.Docker.Cli.Utilities;

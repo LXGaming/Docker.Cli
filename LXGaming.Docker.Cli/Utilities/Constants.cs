@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using LXGaming.Common.Utilities;
 
 namespace LXGaming.Docker.Cli.Utilities;

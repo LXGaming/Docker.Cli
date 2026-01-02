@@ -1,4 +1,4 @@
-﻿using Docker.DotNet.Models;
+using Docker.DotNet.Models;
 using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Services.Docker;
 using LXGaming.Docker.Cli.Services.Docker.Utilities;
