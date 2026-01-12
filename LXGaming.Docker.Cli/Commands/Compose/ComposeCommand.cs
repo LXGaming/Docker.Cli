@@ -24,7 +24,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         return base.Validate(context, settings);
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings) {
+    public override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings,
+        CancellationToken cancellationToken) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
             ConsoleUtils.Error("Directory {0} does not exist", path);
