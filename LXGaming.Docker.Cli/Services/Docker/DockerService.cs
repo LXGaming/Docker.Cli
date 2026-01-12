@@ -33,8 +33,8 @@ public class DockerService {
         return ExecuteAsync(startInfo);
     }
 
-    public static async Task<ImmutableArray<ContainerInspectResponse>> ProcessStatusComposeAsync(IEnumerable<string> files,
-        string? projectName = null) {
+    public static async Task<ImmutableArray<ContainerInspectResponse>> ProcessStatusComposeAsync(
+        IEnumerable<string> files, string? projectName = null) {
         var startInfo = CreateStartInfo(true);
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
         startInfo.ArgumentList.AddRange([
@@ -67,7 +67,8 @@ public class DockerService {
         return ExecuteAsync(startInfo);
     }
 
-    public static async Task<ImmutableArray<ContainerInspectResponse>> InspectContainerAsync(IEnumerable<string> containers) {
+    public static async Task<ImmutableArray<ContainerInspectResponse>> InspectContainerAsync(
+        IEnumerable<string> containers) {
         var startInfo = CreateStartInfo(true);
         startInfo.ArgumentList.AddRange([
             "container", "inspect",
