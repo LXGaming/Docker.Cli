@@ -102,7 +102,7 @@ public static class ChoiceUtils {
 
     private static string GetFileName(string path) {
         var fileName = Path.GetFileName(path);
-        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
         return !string.IsNullOrWhiteSpace(fileNameWithoutExtension) ? fileNameWithoutExtension : fileName;
     }
 }
