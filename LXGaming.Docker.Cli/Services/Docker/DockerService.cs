@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
@@ -32,7 +33,7 @@ public class DockerService {
         return ExecuteAsync(startInfo);
     }
 
-    public static async Task<List<ContainerInspectResponse>> ProcessStatusComposeAsync(IEnumerable<string> files,
+    public static async Task<ImmutableArray<ContainerInspectResponse>> ProcessStatusComposeAsync(IEnumerable<string> files,
         string? projectName = null) {
         var startInfo = CreateStartInfo(true);
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
@@ -66,7 +67,7 @@ public class DockerService {
         return ExecuteAsync(startInfo);
     }
 
-    public static async Task<List<ContainerInspectResponse>> InspectContainerAsync(IEnumerable<string> containers) {
+    public static async Task<ImmutableArray<ContainerInspectResponse>> InspectContainerAsync(IEnumerable<string> containers) {
         var startInfo = CreateStartInfo(true);
         startInfo.ArgumentList.AddRange([
             "container", "inspect",
@@ -83,8 +84,7 @@ public class DockerService {
             throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
         }
 
-        return JsonConvert.DeserializeObject<List<ContainerInspectResponse>>(stringBuilder.ToString())
-               ?? throw new JsonException($"Failed to deserialize {nameof(List<ContainerInspectResponse>)}");
+        return JsonConvert.DeserializeObject<ImmutableArray<ContainerInspectResponse>>(stringBuilder.ToString());
     }
 
     public static Task<ProcessResult> StartContainerAsync(IEnumerable<string> containers, bool quiet = false) {
@@ -96,23 +96,23 @@ public class DockerService {
         return ExecuteAsync(startInfo);
     }
 
-    public static async Task<List<string>> ListImageAsync() {
+    public static async Task<ImmutableArray<string>> ListImageAsync() {
         var startInfo = CreateStartInfo(true);
         startInfo.ArgumentList.AddRange([
             "image", "ls",
             "--format", "{{.Repository}}:{{.Tag}}"
         ]);
 
-        var images = new List<string>();
+        var imagesBuilder = ImmutableArray.CreateBuilder<string>();
         var result = await ExecuteAsync(startInfo, null, (_, data) => {
-            images.Add(data);
+            imagesBuilder.Add(data);
         });
 
         if (result.ExitCode != 0) {
             throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
         }
 
-        return images;
+        return imagesBuilder.DrainToImmutable();
     }
 
     public static Task<ProcessResult> PullImageAsync(string image, bool quiet = false) {

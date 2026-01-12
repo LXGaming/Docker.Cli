@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Docker.DotNet.Models;
 using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Services.Docker;
@@ -92,7 +93,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        var lazyContainers = new Lazy<Task<List<ContainerInspectResponse>>>(async () => {
+        var lazyContainers = new Lazy<Task<ImmutableArray<ContainerInspectResponse>>>(async () => {
             try {
                 return await DockerService.ProcessStatusComposeAsync(files, projectName);
             } catch (Exception ex) {
@@ -141,16 +142,16 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         return 0;
     }
 
-    private static async Task RestoreStateAsync(OutputStyle style, List<ContainerInspectResponse> containers,
+    private static async Task RestoreStateAsync(OutputStyle style, ImmutableArray<ContainerInspectResponse> containers,
         Dictionary<string, ContainerState> containerStates, Action<string?, object?[]> progress) {
-        for (var index = 0; index < containers.Count; index++) {
+        for (var index = 0; index < containers.Length; index++) {
             var container = containers[index];
             var containerName = container.GetName();
             if (!containerStates.TryGetValue(containerName, out var containerState)) {
                 continue;
             }
 
-            var prefix = ConsoleUtils.CreateListPrefix(index, containers.Count);
+            var prefix = ConsoleUtils.CreateListPrefix(index, containers.Length);
             if (containerState.Running) {
                 progress($"{prefix} Starting {{0}}", [containerName]);
                 var startResult = await DockerService.StartContainerAsync([container.ID],
