@@ -1,4 +1,12 @@
 <linker>
+  <!-- Reflection -->
+  <assembly fullname="Docker.DotNet">
+    <type fullname="Docker.DotNet.JsonSerializer">
+      <field name="_options" />
+      <property name="Instance" accessors="get" />
+    </type>
+  </assembly>
+
   <!-- Spectre.Console -->
   <assembly fullname="System.Runtime">
     <type fullname="System.Runtime.CompilerServices.TupleElementNamesAttribute" />

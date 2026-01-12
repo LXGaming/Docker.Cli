@@ -3,13 +3,25 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Docker.DotNet;
 using Docker.DotNet.Models;
+using LXGaming.Common.Utilities;
 using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Utilities;
 
 namespace LXGaming.Docker.Cli.Services.Docker;
 
 public class DockerService {
+
+    private static readonly JsonSerializerOptions JsonSerializerOptions;
+
+    static DockerService() {
+        var jsonSerializerType = typeof(IDockerClient).Assembly.GetType("Docker.DotNet.JsonSerializer")!;
+        var instanceProperty = ReflectionUtils.GetRequiredProperty(jsonSerializerType, "Instance", true);
+        var optionsField = ReflectionUtils.GetRequiredField(jsonSerializerType, "_options", false);
+        var jsonSerializer = instanceProperty.GetMethod!.Invoke(null, []);
+        JsonSerializerOptions = (JsonSerializerOptions) optionsField.GetValue(jsonSerializer)!;
+    }
 
     public static Task<ProcessResult> ComposeAsync(IEnumerable<string> files, string? projectName = null,
         IEnumerable<string>? arguments = null) {
@@ -85,7 +97,8 @@ public class DockerService {
             throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
         }
 
-        return JsonSerializer.Deserialize<ImmutableArray<ContainerInspectResponse>>(stringBuilder.ToString());
+        return JsonSerializer.Deserialize<ImmutableArray<ContainerInspectResponse>>(stringBuilder.ToString(),
+            JsonSerializerOptions);
     }
 
     public static Task<ProcessResult> StartContainerAsync(IEnumerable<string> containers, bool quiet = false) {
