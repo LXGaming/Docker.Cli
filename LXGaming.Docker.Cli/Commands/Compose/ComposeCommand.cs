@@ -76,16 +76,16 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
             return 1;
         }
 
-        Dictionary<string, ContainerState> containerStates;
+        Dictionary<string, State> containerStates;
         if (settings.RestoreState) {
             try {
                 containerStates = await GetContainerStatesAsync(files, projectName);
             } catch (Exception ex) {
                 ConsoleUtils.Error(ex, "Encountered error while getting container states");
-                containerStates = new Dictionary<string, ContainerState>();
+                containerStates = new Dictionary<string, State>();
             }
         } else {
-            containerStates = new Dictionary<string, ContainerState>();
+            containerStates = new Dictionary<string, State>();
         }
 
         var result = await DockerService.ComposeAsync(files, projectName, context.Remaining.Raw);
@@ -143,7 +143,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
     }
 
     private static async Task RestoreStateAsync(OutputStyle style, ImmutableArray<ContainerInspectResponse> containers,
-        Dictionary<string, ContainerState> containerStates, Action<string?, object?[]> progress) {
+        Dictionary<string, State> containerStates, Action<string?, object?[]> progress) {
         for (var index = 0; index < containers.Length; index++) {
             var container = containers[index];
             var containerName = container.GetName();
@@ -169,7 +169,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         }
     }
 
-    private static async Task<Dictionary<string, ContainerState>> GetContainerStatesAsync(IEnumerable<string> files,
+    private static async Task<Dictionary<string, State>> GetContainerStatesAsync(IEnumerable<string> files,
         string? projectName = null) {
         var containers = await DockerService.ProcessStatusComposeAsync(files, projectName);
         return containers.ToDictionary(container => container.GetName(), container => container.State);

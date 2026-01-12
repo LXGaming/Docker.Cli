@@ -2,10 +2,10 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using Docker.DotNet.Models;
 using LXGaming.Docker.Cli.Models;
 using LXGaming.Docker.Cli.Utilities;
-using Newtonsoft.Json;
 
 namespace LXGaming.Docker.Cli.Services.Docker;
 
@@ -84,7 +84,7 @@ public class DockerService {
             throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
         }
 
-        return JsonConvert.DeserializeObject<ImmutableArray<ContainerInspectResponse>>(stringBuilder.ToString());
+        return JsonSerializer.Deserialize<ImmutableArray<ContainerInspectResponse>>(stringBuilder.ToString());
     }
 
     public static Task<ProcessResult> StartContainerAsync(IEnumerable<string> containers, bool quiet = false) {
