@@ -29,7 +29,7 @@ public class DockerService {
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
 
         if (arguments != null) {
-            startInfo.ArgumentList.AddRange(arguments);
+            CollectionUtils.AddRange(startInfo.ArgumentList, arguments);
         }
 
         return ExecuteAsync(startInfo);
@@ -38,10 +38,10 @@ public class DockerService {
     public static Task<ProcessResult> ConfigComposeAsync(IEnumerable<string> files, string? projectName = null) {
         var startInfo = CreateStartInfo(false);
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
-        startInfo.ArgumentList.AddRange([
+        CollectionUtils.AddRange(startInfo.ArgumentList,
             "config",
             "--quiet"
-        ]);
+        );
         return ExecuteAsync(startInfo);
     }
 
@@ -49,12 +49,12 @@ public class DockerService {
         IEnumerable<string> files, string? projectName = null) {
         var startInfo = CreateStartInfo(true);
         AddComposeArguments(startInfo.ArgumentList, files, projectName);
-        startInfo.ArgumentList.AddRange([
+        CollectionUtils.AddRange(startInfo.ArgumentList,
             "ps",
             "--all",
             "--no-trunc",
             "--quiet"
-        ]);
+        );
 
         var containers = new List<string>();
         var result = await ExecuteAsync(startInfo, null, (_, data) => {
@@ -82,11 +82,11 @@ public class DockerService {
     public static async Task<ImmutableArray<ContainerInspectResponse>> InspectContainerAsync(
         IEnumerable<string> containers) {
         var startInfo = CreateStartInfo(true);
-        startInfo.ArgumentList.AddRange([
+        CollectionUtils.AddRange(startInfo.ArgumentList,
             "container", "inspect",
             "--format", "json"
-        ]);
-        startInfo.ArgumentList.AddRange(containers);
+        );
+        CollectionUtils.AddRange(startInfo.ArgumentList, containers);
 
         var stringBuilder = new StringBuilder();
         var result = await ExecuteAsync(startInfo, null, (_, data) => {
@@ -103,19 +103,19 @@ public class DockerService {
 
     public static Task<ProcessResult> StartContainerAsync(IEnumerable<string> containers, bool quiet = false) {
         var startInfo = CreateStartInfo(quiet);
-        startInfo.ArgumentList.AddRange([
+        CollectionUtils.AddRange(startInfo.ArgumentList,
             "container", "start"
-        ]);
-        startInfo.ArgumentList.AddRange(containers);
+        );
+        CollectionUtils.AddRange(startInfo.ArgumentList, containers);
         return ExecuteAsync(startInfo);
     }
 
     public static async Task<ImmutableArray<string>> ListImageAsync() {
         var startInfo = CreateStartInfo(true);
-        startInfo.ArgumentList.AddRange([
+        CollectionUtils.AddRange(startInfo.ArgumentList,
             "image", "ls",
             "--format", "{{.Repository}}:{{.Tag}}"
-        ]);
+        );
 
         var imagesBuilder = ImmutableArray.CreateBuilder<string>();
         var result = await ExecuteAsync(startInfo, null, (_, data) => {
@@ -131,9 +131,9 @@ public class DockerService {
 
     public static Task<ProcessResult> PullImageAsync(string image, bool quiet = false) {
         var startInfo = CreateStartInfo(quiet);
-        startInfo.ArgumentList.AddRange([
+        CollectionUtils.AddRange(startInfo.ArgumentList,
             "image", "pull", image
-        ]);
+        );
 
         if (quiet) {
             startInfo.ArgumentList.Add("--quiet");
