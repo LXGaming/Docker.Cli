@@ -26,8 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Docker.DotNet.Enhanced" Version="3.131.1" />
-    <PackageReference Include="LXGaming.Common" Version="1.11.6" />
+    <PackageReference Include="Docker.DotNet.Enhanced" Version="4.0.2" />
+    <PackageReference Include="LXGaming.Common" Version="1.11.8" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.53.1" />
   </ItemGroup>
 
