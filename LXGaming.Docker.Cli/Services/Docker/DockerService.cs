@@ -52,7 +52,7 @@ public class DockerService {
         });
 
         if (result.ExitCode != 0) {
-            throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
+            throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}.");
         }
 
         if (containers.Count == 0) {
@@ -84,7 +84,7 @@ public class DockerService {
         });
 
         if (result.ExitCode != 0) {
-            throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
+            throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}.");
         }
 
         return JsonSerializer.Deserialize<ImmutableArray<ContainerInspectResponse>>(stringBuilder.ToString(),
@@ -113,7 +113,7 @@ public class DockerService {
         });
 
         if (result.ExitCode != 0) {
-            throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}");
+            throw new InvalidOperationException($"Unexpected ExitCode: {result.ExitCode}.");
         }
 
         return imagesBuilder.DrainToImmutable();
@@ -178,7 +178,7 @@ public class DockerService {
         process.StartInfo = startInfo;
 
         if (!process.Start()) {
-            throw new InvalidOperationException("Failed to start process");
+            throw new InvalidOperationException("Failed to start process.");
         }
 
         DateTime startTime;
