@@ -47,7 +47,7 @@ public class DockerService {
         );
 
         var containers = new List<string>();
-        var result = await ExecuteAsync(startInfo, null, (_, data) => {
+        var result = await ExecuteWithFilterAsync(startInfo, null, (_, data) => {
             containers.Add(data);
         });
 
@@ -108,7 +108,7 @@ public class DockerService {
         );
 
         var imagesBuilder = ImmutableArray.CreateBuilder<string>();
-        var result = await ExecuteAsync(startInfo, null, (_, data) => {
+        var result = await ExecuteWithFilterAsync(startInfo, null, (_, data) => {
             imagesBuilder.Add(data);
         });
 
@@ -161,6 +161,16 @@ public class DockerService {
         };
     }
 
+    private static Task<ProcessResult> ExecuteWithFilterAsync(ProcessStartInfo startInfo,
+        Action<object, string>? onError = null, Action<object, string>? onOutput = null,
+        CancellationToken cancellationToken = default) {
+        return ExecuteAsync(startInfo, (sender, data) => {
+            Filter(sender, data, onError);
+        }, (sender, data) => {
+            Filter(sender, data, onOutput);
+        }, cancellationToken);
+    }
+
     private static async Task<ProcessResult> ExecuteAsync(ProcessStartInfo startInfo,
         Action<object, string>? onError = null, Action<object, string>? onOutput = null,
         CancellationToken cancellationToken = default) {
@@ -205,15 +215,27 @@ public class DockerService {
     }
 
     private static void OnDataReceived(object sender, DataReceivedEventArgs args, Action<object, string>? action) {
+        if (action == null) {
+            return;
+        }
+
         var data = args.Data;
-        if (string.IsNullOrWhiteSpace(data)) {
+        if (data == null) {
             return;
         }
 
         try {
-            action?.Invoke(sender, data);
+            action(sender, data);
         } catch (Exception ex) {
             ConsoleUtils.Error(ex, "Encountered an error while invoking callback");
         }
+    }
+
+    private static void Filter(object sender, string data, Action<object, string>? action) {
+        if (action == null || string.IsNullOrWhiteSpace(data)) {
+            return;
+        }
+
+        action(sender, data);
     }
 }
