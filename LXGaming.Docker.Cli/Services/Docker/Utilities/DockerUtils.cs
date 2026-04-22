@@ -1,9 +1,22 @@
 using System.Net;
+using System.Text.Json;
+using Docker.DotNet;
 using Docker.DotNet.Models;
+using LXGaming.Common.Utilities;
 
 namespace LXGaming.Docker.Cli.Services.Docker.Utilities;
 
 public static class DockerUtils {
+
+    public static JsonSerializerOptions JsonSerializerOptions { get; private set;  }
+
+    static DockerUtils() {
+        var jsonSerializerType = typeof(IDockerClient).Assembly.GetType("Docker.DotNet.JsonSerializer")!;
+        var instanceProperty = ReflectionUtils.GetRequiredProperty(jsonSerializerType, "Instance", true);
+        var optionsField = ReflectionUtils.GetRequiredField(jsonSerializerType, "_options", false);
+        var jsonSerializer = instanceProperty.GetMethod!.Invoke(null, []);
+        JsonSerializerOptions = (JsonSerializerOptions) optionsField.GetValue(jsonSerializer)!;
+    }
 
     public static string GetName(string name) {
         return name.TrimStart('/');
