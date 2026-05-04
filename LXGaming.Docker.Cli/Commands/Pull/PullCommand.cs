@@ -8,7 +8,7 @@ namespace LXGaming.Docker.Cli.Commands.Pull;
 
 public class PullCommand : AsyncCommand<PullSettings> {
 
-    public override async Task<int> ExecuteAsync(CommandContext context, PullSettings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, PullSettings settings,
         CancellationToken cancellationToken) {
         var images = await ListImageAsync();
         if (images.Count == 0) {

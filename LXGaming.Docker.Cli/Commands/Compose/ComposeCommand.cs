@@ -11,7 +11,7 @@ namespace LXGaming.Docker.Cli.Commands.Compose;
 
 public class ComposeCommand : AsyncCommand<ComposeSettings> {
 
-    public override ValidationResult Validate(CommandContext context, ComposeSettings settings) {
+    protected override ValidationResult Validate(CommandContext context, ComposeSettings settings) {
         if (context.Remaining.Raw.Count == 0) {
             return ValidationResult.Error("Missing compose arguments");
         }
@@ -25,7 +25,7 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         return base.Validate(context, settings);
     }
 
-    public override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings,
+    protected override async Task<int> ExecuteAsync(CommandContext context, ComposeSettings settings,
         CancellationToken cancellationToken) {
         var path = Path.GetFullPath(settings.Path);
         if (!Directory.Exists(path)) {
@@ -122,6 +122,10 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
         if (settings.CheckNames) {
             var containers = await lazyContainers.Value;
             foreach (var container in containers) {
+                if (container.Config == null) {
+                    continue;
+                }
+
                 var containerName = container.GetName();
                 var service = container.GetService();
 
@@ -172,6 +176,8 @@ public class ComposeCommand : AsyncCommand<ComposeSettings> {
     private static async Task<Dictionary<string, State>> GetContainerStatesAsync(IEnumerable<string> files,
         string? projectName = null) {
         var containers = await DockerService.ProcessStatusComposeAsync(files, projectName);
-        return containers.ToDictionary(container => container.GetName(), container => container.State);
+        return containers
+            .Where(container => container.State != null)
+            .ToDictionary(container => container.GetName(), container => container.State!);
     }
 }
