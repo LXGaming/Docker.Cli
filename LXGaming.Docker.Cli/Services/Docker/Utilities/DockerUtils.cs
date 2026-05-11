@@ -8,7 +8,7 @@ namespace LXGaming.Docker.Cli.Services.Docker.Utilities;
 
 public static class DockerUtils {
 
-    public static JsonSerializerOptions JsonSerializerOptions { get; private set;  }
+    public static JsonSerializerOptions JsonSerializerOptions { get; private set; }
 
     static DockerUtils() {
         var jsonSerializerType = typeof(IDockerClient).Assembly.GetType("Docker.DotNet.JsonSerializer")!;
